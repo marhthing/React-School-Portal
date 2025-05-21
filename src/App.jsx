@@ -1,19 +1,61 @@
-// src/App.jsx
+import { Routes, Route, Navigate } from 'react-router-dom';
+import Login from './pages/Login';
+import AdminDashboard from './pages/AdminDashboard';
+import StudentDashboard from './pages/StudentDashboard';
+import TeacherDashboard from './pages/TeacherDashboard';
 
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Dashboard from './pages/Dashboard';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const App = () => {
+  const userData = JSON.parse(localStorage.getItem('userData'));
+  const role = userData?.role;
+
   return (
-    <Router>
-      <Routes>
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/register-student" element={<RegisterStudent />} />
-        <Route path="/register-teacher" element={<RegisterTeacher />} />
-        {/* Add routes for other pages here */}
-      </Routes>
-    </Router>
+    <Routes>
+      {/* Login route: only accessible if not logged in */}
+      <Route
+        path="/login"
+        element={role ? <Navigate to={`/${role}Dashboard`} replace /> : <Login />}
+      />
+
+      {/* Root route: redirect to dashboard or login */}
+      <Route
+        path="/"
+        element={
+          role ? <Navigate to={`/${role}Dashboard`} replace /> : <Navigate to="/login" replace />
+        }
+      />
+
+      {/* Admin dashboard route */}
+      <Route
+        path="/adminDashboard"
+        element={
+          <ProtectedRoute requiredRole="admin">
+            <AdminDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Student dashboard route */}
+      <Route
+        path="/studentDashboard"
+        element={
+          <ProtectedRoute requiredRole="student">
+            <StudentDashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Teacher dashboard route */}
+      <Route
+        path="/teacherDashboard"
+        element={
+          <ProtectedRoute requiredRole="teacher">
+            <TeacherDashboard />
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
   );
 };
 
