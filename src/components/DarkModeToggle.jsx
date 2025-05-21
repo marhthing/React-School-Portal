@@ -16,7 +16,11 @@ const DarkModeToggle = () => {
   }, [darkMode]);
 
   return (
-    <button onClick={() => setDarkMode(!darkMode)} className="text-xl">
+    <button
+      onClick={() => setDarkMode(!darkMode)}
+      className="text-xl hover:text-yellow-300 transition"
+      aria-label="Toggle Dark Mode"
+    >
       {darkMode ? <FaSun /> : <FaMoon />}
     </button>
   );

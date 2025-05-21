@@ -2,6 +2,7 @@
 import React from 'react';
 import { FaBars, FaSignOutAlt } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+import DarkModeToggle from './DarkModeToggle.jsx';
 
 const Navbar = ({ toggleSidebar }) => {
   return (
@@ -20,12 +21,16 @@ const Navbar = ({ toggleSidebar }) => {
 
       <h1 className="text-xl font-semibold">Admin Dashboard</h1>
 
-      <Link
-        to="/logout"
-        className="flex items-center gap-2 bg-red-600 hover:bg-red-700 px-3 py-1 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-red-400"
-      >
-        <FaSignOutAlt /> Logout
-      </Link>
+      {/* Right-side controls */}
+      <div className="flex items-center gap-4">
+        <DarkModeToggle />
+        <Link
+          to="/logout"
+          className="flex items-center gap-2 bg-red-600 hover:bg-red-700 px-3 py-1 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-red-400"
+        >
+          <FaSignOutAlt /> Logout
+        </Link>
+      </div>
     </header>
   );
 };

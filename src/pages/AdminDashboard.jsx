@@ -2,23 +2,41 @@
 import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
+import TopStats from '../components/TopStats';
+import GenderPieChart from '../components/GenderPieChart';
+import SubjectSummary from '../components/SubjectSummary';
+import PassFailChart from '../components/PassFailChart';
+import TopStudentsTable from '../components/TopStudentsTable';
 
 const AdminDashboard = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+
+  const toggleDarkMode = () => setDarkMode(!darkMode);
 
   return (
-    <div className="min-h-screen bg-bg-primary text-text-primary">
-      {/* Navbar fixed at top */}
-      <Navbar toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+    <div className={`${darkMode ? 'dark' : ''} flex min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100`}>
+      <Sidebar />
+      <div className="flex-1 lg:ml-64 flex flex-col min-h-screen">
+        <Navbar darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+        <main className="p-6 flex-1 overflow-auto">
+          <h1 className="text-3xl font-semibold mb-6">Dashboard Insights</h1>
 
-      {/* Sidebar with toggle for mobile */}
-      <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
+          {/* Top Statistics */}
+          <TopStats />
 
-      {/* Main content - padding top to avoid navbar overlay */}
-      <main className="pt-16 lg:pl-64 p-6 transition-all duration-300">
-        <h1 className="text-3xl font-semibold mb-6">Welcome to the Admin Dashboard</h1>
-        {/* Your dashboard content here */}
-      </main>
+          {/* Charts Row */}
+          <div className="grid lg:grid-cols-2 gap-6 my-6">
+            <GenderPieChart />
+            <SubjectSummary />
+          </div>
+
+          {/* Pass vs Fail Bar Chart */}
+          <PassFailChart />
+
+          {/* Top 3 Students Table */}
+          <TopStudentsTable />
+        </main>
+      </div>
     </div>
   );
 };
