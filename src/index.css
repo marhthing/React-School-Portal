@@ -1,3 +1,48 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  /* Light mode colors */
+  --color-primary: #1f2937;       /* dark blue-gray */
+  --color-secondary: #2563eb;     /* bright blue */
+  --color-bg-primary: #f9fafb;    /* very light gray */
+  --color-text-primary: #111827;  /* almost black */
+  --color-sidebar-bg: #111827;    /* very dark blue-gray */
+}
+
+[data-theme='dark'] {
+  /* Dark mode colors */
+  --color-primary: #111827;       /* very dark blue-gray */
+  --color-secondary: #3b82f6;     /* lighter blue */
+  --color-bg-primary: #1e293b;    /* dark navy */
+  --color-text-primary: #f9fafb;  /* off white */
+  --color-sidebar-bg: #111827;    /* very dark blue-gray */
+}
+
+body {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.bg-primary {
+  background-color: var(--color-primary);
+}
+
+.bg-secondary {
+  background-color: var(--color-secondary);
+}
+
+.text-primary {
+  color: var(--color-primary);
+}
+
+.text-text-primary {
+  color: var(--color-text-primary);
+}
+
+.bg-bg-primary {
+  background-color: var(--color-bg-primary);
+}

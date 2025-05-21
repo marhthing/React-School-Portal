@@ -1,56 +1,69 @@
 // src/components/Sidebar.jsx
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import {
+  FaTachometerAlt,
+  FaUserPlus,
+  FaUsers,
+  FaFileAlt,
+  FaUpload,
+  FaCheckCircle,
+  FaChartBar,
+  FaEnvelope,
+  FaArrowLeft,
+  FaSignOutAlt,
+} from 'react-icons/fa';
 
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { FaBars, FaTimes } from 'react-icons/fa';
+const Sidebar = ({ isOpen, setIsOpen }) => {
+  const location = useLocation();
 
-const Sidebar = () => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  // Toggle the sidebar on small screens
-  const toggleSidebar = () => {
-    setIsOpen(!isOpen);
-  };
+  const links = [
+    { path: '/dashboard', label: 'Dashboard', icon: <FaTachometerAlt /> },
+    { path: '/register-student', label: 'Register Student', icon: <FaUserPlus /> },
+    { path: '/register-teacher', label: 'Register Teacher', icon: <FaUserPlus /> },
+    { path: '/my-students', label: 'My Students', icon: <FaUsers /> },
+    { path: '/my-teachers', label: 'My Teachers', icon: <FaUsers /> },
+    { path: '/print-slip', label: 'Print Slip', icon: <FaFileAlt /> },
+    { path: '/manage-students', label: 'Manage Students', icon: <FaUsers /> },
+    { path: '/manage-subjects', label: 'Manage Subjects', icon: <FaFileAlt /> },
+    { path: '/result-upload', label: 'Result Upload', icon: <FaUpload /> },
+    { path: '/publish-result', label: 'Publish Result', icon: <FaCheckCircle /> },
+    { path: '/promote-students', label: 'Promote Students', icon: <FaCheckCircle /> },
+    { path: '/check-result', label: 'Check Result', icon: <FaFileAlt /> },
+    { path: '/register-admin', label: 'Register Admin', icon: <FaUserPlus /> },
+    { path: '/reports', label: 'Reports', icon: <FaChartBar /> },
+    { path: '/contact-messages', label: 'Contact Messages', icon: <FaEnvelope /> },
+    { path: '/website', label: 'Back to Website', icon: <FaArrowLeft /> },
+  ];
 
   return (
-    <div>
-      {/* Hamburger icon for mobile */}
-      <div className="lg:hidden flex justify-between items-center p-4 bg-gray-800 text-white">
-        <FaBars className="text-2xl" onClick={toggleSidebar} />
-        <span className="text-lg">Admin Dashboard</span>
+    <nav
+      aria-label="Main navigation"
+      className={`bg-primary text-white lg:w-64 fixed top-16 left-0 h-[calc(100vh-4rem)] z-40 transform transition-transform duration-300 ease-in-out
+      ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 shadow-lg`}
+    >
+      <div className="p-4 space-y-2 overflow-y-auto h-full focus:outline-none" tabIndex={-1}>
+        {links.map(({ path, label, icon }) => {
+          const isActive = location.pathname === path;
+          return (
+            <Link
+              key={path}
+              to={path}
+              className={`flex items-center gap-3 px-4 py-2 rounded-md text-sm font-medium transition-colors
+                ${isActive
+                  ? 'bg-white text-primary font-semibold shadow'
+                  : 'hover:bg-secondary hover:text-white focus:bg-secondary focus:text-white focus:outline-none'}
+              `}
+              onClick={() => setIsOpen(false)}
+              aria-current={isActive ? 'page' : undefined}
+            >
+              <span className="text-lg">{icon}</span>
+              <span>{label}</span>
+            </Link>
+          );
+        })}
       </div>
-
-      {/* Sidebar */}
-      <div
-        className={`lg:flex lg:w-64 bg-gray-800 text-white fixed top-0 left-0 h-full transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300`}
-      >
-        <div className="lg:w-64 bg-gray-800 p-4">
-          {/* Close button for mobile */}
-          <div className="lg:hidden flex justify-between items-center mb-4">
-            <FaTimes className="text-2xl" onClick={toggleSidebar} />
-          </div>
-
-          <ul className="space-y-4">
-            <li><Link to="/dashboard" className="text-white">Dashboard</Link></li>
-            <li><Link to="/register-student" className="text-white">Register New Student</Link></li>
-            <li><Link to="/register-teacher" className="text-white">Register New Teacher</Link></li>
-            <li><Link to="/my-students" className="text-white">My Students</Link></li>
-            <li><Link to="/my-teachers" className="text-white">My Teachers</Link></li>
-            <li><Link to="/print-slip" className="text-white">Print Student Slip</Link></li>
-            <li><Link to="/manage-students" className="text-white">Register/Deregister Students</Link></li>
-            <li><Link to="/manage-subjects" className="text-white">Manage Subjects</Link></li>
-            <li><Link to="/result-upload" className="text-white">Result Upload</Link></li>
-            <li><Link to="/publish-result" className="text-white">Publish Result</Link></li>
-            <li><Link to="/promote-students" className="text-white">Promote Students</Link></li>
-            <li><Link to="/check-result" className="text-white">Check Student Result</Link></li>
-            <li><Link to="/register-admin" className="text-white">Register New Admin</Link></li>
-            <li><Link to="/reports" className="text-white">Analysis & Reports</Link></li>
-            <li><Link to="/contact-messages" className="text-white">Contact Us Messages</Link></li>
-            <li><Link to="/website" className="text-white">Back to Website</Link></li>
-          </ul>
-        </div>
-      </div>
-    </div>
+    </nav>
   );
 };
 

@@ -1,22 +1,24 @@
 // src/pages/AdminDashboard.jsx
+import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 
 const AdminDashboard = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
-    <div className="flex">
-      {/* Sidebar */}
-      <Sidebar />
+    <div className="min-h-screen bg-bg-primary text-text-primary">
+      {/* Navbar fixed at top */}
+      <Navbar toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
 
-      <div className="lg:ml-64 flex-1">
-        {/* Navbar (top bar) */}
-        <Navbar />
+      {/* Sidebar with toggle for mobile */}
+      <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
 
-        <div className="p-6">
-          <h1 className="text-2xl font-semibold">Welcome to the Admin Dashboard</h1>
-          {/* Content goes here */}
-        </div>
-      </div>
+      {/* Main content - padding top to avoid navbar overlay */}
+      <main className="pt-16 lg:pl-64 p-6 transition-all duration-300">
+        <h1 className="text-3xl font-semibold mb-6">Welcome to the Admin Dashboard</h1>
+        {/* Your dashboard content here */}
+      </main>
     </div>
   );
 };
