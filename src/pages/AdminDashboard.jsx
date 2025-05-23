@@ -1,44 +1,49 @@
-// src/pages/AdminDashboard.jsx
-import React, { useState } from 'react';
-import Sidebar from '../components/Sidebar';
-import Navbar from '../components/Navbar';
-import TopStats from '../components/TopStats';
-import GenderPieChart from '../components/GenderPieChart';
-import SubjectSummary from '../components/SubjectSummary';
-import PassFailChart from '../components/PassFailChart';
-import TopStudentsTable from '../components/TopStudentsTable';
+// pages/AdminDashboard.jsx
+import AdminLayout from "../components/AdminLayout";
+import Cards from "../components/Admin UI/Cards";
+import RecentActivities from "../components/Admin UI/RecentActivities";
+import GenderPieChart from "../components/Admin UI/GenderPieChart";
+import ClassPerformanceChart from "../components/Admin UI/ClassPerformanceChart";
+import {
+  FaUserGraduate,
+  FaChalkboardTeacher,
+  FaClock,
+  FaCalendarAlt,
+  FaFileUpload,
+  FaCheckCircle,
+  FaUsers
+} from "react-icons/fa";
 
-const AdminDashboard = () => {
-  const [darkMode, setDarkMode] = useState(false);
-
-  const toggleDarkMode = () => setDarkMode(!darkMode);
+export default function AdminDashboard() {
+  const summaryData = [
+    { title: "Total Students", value: 520, icon: <FaUserGraduate /> },
+    { title: "Total Teachers", value: 35, icon: <FaChalkboardTeacher /> },
+    { title: "Current Term", value: "2nd Term", icon: <FaClock /> },
+    { title: "Current Session", value: "2024/2025", icon: <FaCalendarAlt /> },
+    { title: "Results Uploaded", value: 400, icon: <FaFileUpload /> },
+    { title: "Results Published", value: 320, icon: <FaCheckCircle /> },
+    { title: "Active Users", value: 18, icon: <FaUsers /> },
+  ];
 
   return (
-    <div className={`${darkMode ? 'dark' : ''} flex min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100`}>
-      <Sidebar />
-      <div className="flex-1 lg:ml-64 flex flex-col min-h-screen">
-        <Navbar darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
-        <main className="p-6 flex-1 overflow-auto">
-          <h1 className="text-3xl font-semibold mb-6">Dashboard Insights</h1>
+    <AdminLayout >
+      <div className="space-y-6 p-4 mt-20">
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {summaryData.map((item, index) => (
+            <Cards key={index} {...item} />
+          ))}
+        </div>
 
-          {/* Top Statistics */}
-          <TopStats />
+        {/* Recent Activities */}
+        <RecentActivities />
 
-          {/* Charts Row */}
-          <div className="grid lg:grid-cols-2 gap-6 my-6">
-            <GenderPieChart />
-            <SubjectSummary />
-          </div>
-
-          {/* Pass vs Fail Bar Chart */}
-          <PassFailChart />
-
-          {/* Top 3 Students Table */}
-          <TopStudentsTable />
-        </main>
+        {/* Charts */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <GenderPieChart />
+          <ClassPerformanceChart />
+        </div>
       </div>
-    </div>
+    </AdminLayout>
   );
-};
-
-export default AdminDashboard;
+}

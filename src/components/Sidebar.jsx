@@ -11,18 +11,16 @@ import {
   FaChartBar,
   FaEnvelope,
   FaArrowLeft,
-  FaSignOutAlt,
+  FaUserCog, 
 } from 'react-icons/fa';
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const location = useLocation();
 
   const links = [
-    { path: '/dashboard', label: 'Dashboard', icon: <FaTachometerAlt /> },
-    { path: '/register-student', label: 'Register Student', icon: <FaUserPlus /> },
-    { path: '/register-teacher', label: 'Register Teacher', icon: <FaUserPlus /> },
-    { path: '/my-students', label: 'My Students', icon: <FaUsers /> },
-    { path: '/my-teachers', label: 'My Teachers', icon: <FaUsers /> },
+    { path: '/adminDashboard', label: 'Dashboard', icon: <FaTachometerAlt /> },
+    { path: '/student', label: 'Student', icon: <FaUsers /> },
+    { path: '/teacher', label: 'Teacher', icon: <FaUserPlus /> },
     { path: '/print-slip', label: 'Print Slip', icon: <FaFileAlt /> },
     { path: '/manage-students', label: 'Manage Students', icon: <FaUsers /> },
     { path: '/manage-subjects', label: 'Manage Subjects', icon: <FaFileAlt /> },
@@ -37,33 +35,44 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
   ];
 
   return (
-    <nav
-      aria-label="Main navigation"
-      className={`bg-primary text-white lg:w-64 fixed top-16 left-0 h-[calc(100vh-4rem)] z-40 transform transition-transform duration-300 ease-in-out
-      ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 shadow-lg`}
-    >
-      <div className="p-4 space-y-2 overflow-y-auto h-full focus:outline-none" tabIndex={-1}>
-        {links.map(({ path, label, icon }) => {
-          const isActive = location.pathname === path;
-          return (
-            <Link
-              key={path}
-              to={path}
-              className={`flex items-center gap-3 px-4 py-2 rounded-md text-sm font-medium transition-colors
-                ${isActive
-                  ? 'bg-white text-primary font-semibold shadow'
-                  : 'hover:bg-secondary hover:text-white focus:bg-secondary focus:text-white focus:outline-none'}
-              `}
-              onClick={() => setIsOpen(false)}
-              aria-current={isActive ? 'page' : undefined}
-            >
-              <span className="text-lg">{icon}</span>
-              <span>{label}</span>
-            </Link>
-          );
-        })}
-      </div>
-    </nav>
+    <>
+      {/* Overlay for mobile when sidebar is open */}
+      <div
+        className={`fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden transition-opacity duration-300 ${
+          isOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+        }`}
+        onClick={() => setIsOpen(false)}
+        aria-hidden="true"
+      />
+
+      <nav
+        aria-label="Main navigation"
+        className={`bg-primary text-white lg:w-64 fixed top-16 left-0 h-[calc(100vh-4rem)] z-40 transform transition-transform duration-300 ease-in-out
+          ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 shadow-lg`}
+      >
+        <div className="p-4 space-y-2 overflow-y-auto h-full focus:outline-none" tabIndex={-1}>
+          {links.map(({ path, label, icon }) => {
+            const isActive = location.pathname === path;
+            return (
+              <Link
+                key={path}
+                to={path}
+                className={`flex items-center gap-3 px-4 py-2 rounded-md text-sm font-medium transition-colors
+                  ${isActive
+                    ? 'bg-white text-primary font-semibold shadow'
+                    : 'hover:bg-secondary hover:text-white focus:bg-secondary focus:text-white focus:outline-none'}
+                `}
+                onClick={() => setIsOpen(false)} // Close sidebar on mobile after clicking
+                aria-current={isActive ? 'page' : undefined}
+              >
+                <span className="text-lg">{icon}</span>
+                <span>{label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+    </>
   );
 };
 
