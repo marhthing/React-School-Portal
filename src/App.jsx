@@ -7,6 +7,9 @@ import StudentPage  from './pages/Admin pages/StudentPage';
 import TeacherPage  from './pages/Admin pages/TeacherPage';
 
 import ProtectedRoute from './components/ProtectedRoute';
+import SessionPage from './pages/Admin pages/SessionPage';
+import SubjectPage from './pages/Admin pages/SubjecttPage';
+import UploadPage from './pages/Admin pages/UploadPage';
 
 const App = () => {
   const userData = JSON.parse(localStorage.getItem('userData'));
@@ -72,6 +75,33 @@ const App = () => {
   element={
     <ProtectedRoute requiredRole="admin">
       <TeacherPage />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/session"
+  element={
+    <ProtectedRoute requiredRole="admin">
+      <SessionPage />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/subject"
+  element={
+    <ProtectedRoute requiredRole="admin">
+      <SubjectPage />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/upload"
+  element={
+    <ProtectedRoute requiredRole="admin">
+      <UploadPage />
     </ProtectedRoute>
   }
 />
