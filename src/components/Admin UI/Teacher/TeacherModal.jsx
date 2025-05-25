@@ -12,23 +12,17 @@ const initialFormState = {
 const GENDER_OPTIONS = ["Male", "Female", "Other"];
 const ROLE_OPTIONS = ["Teacher", "Admin", "Support Staff"];
 
-const TeacherModal = ({ mode, teacherData = {}, onSubmit, onClose }) => {
+const TeacherModal = ({ mode, teacher = {}, onSubmit, onClose }) => {
   const [formData, setFormData] = useState(initialFormState);
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
 
-  useEffect(() => {
-    if (mode === "edit" && teacherData) {
-      setFormData({
-        fullName: teacherData.fullName || "",
-        gender: teacherData.gender || "Male",
-        role: teacherData.role || "",
-        phone: teacherData.phone || "",
-        email: teacherData.email || "",
-        password: "", // blank on edit unless changed
-      });
-    }
-  }, [mode, teacherData]);
+useEffect(() => {
+  if (mode === 'edit' && teacher) {
+    setFormData(teacher);
+  }
+}, [teacher, mode]);
+
 
   const validate = () => {
     const errs = {};

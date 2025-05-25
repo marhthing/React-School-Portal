@@ -12,11 +12,8 @@ export default function AddEditSessionModal({
   const [name, setName] = useState("");
 
   useEffect(() => {
-    if (editingSession) {
-      setName(editingSession.name);
-    } else {
-      setName("");
-    }
+    // Ensure name is always a string to avoid uncontrolled input warning
+    setName(editingSession?.name || "");
   }, [editingSession]);
 
   const handleSubmit = (e) => {

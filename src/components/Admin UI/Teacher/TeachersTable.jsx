@@ -34,26 +34,37 @@ const TeacherTable = ({ teachers, onEdit, onDelete }) => {
               <div className="flex justify-between mb-2">
                 <span className="font-semibold">#{index + 1}</span>
                 <div className="flex space-x-2">
-                  <EditTeacherButton teacher={teacher} onClick={() => onEdit(teacher)} />
-                  <DeleteTeacherButton teacher={teacher} onClick={() => onDelete(teacher.id)} />
+                  <EditTeacherButton
+                    teacher={teacher}
+                    onClick={() => onEdit(teacher)}
+                  />
+                  <DeleteTeacherButton
+                    teacher={teacher}
+                    onDelete={() => onDelete(teacher.id)}  // FIXED HERE
+                  />
                 </div>
               </div>
 
               <div className="space-y-1 text-sm">
                 <div>
-                  <span className="font-semibold">Name: </span>{teacher.fullName}
+                  <span className="font-semibold">Name: </span>
+                  {teacher.fullName}
                 </div>
                 <div>
-                  <span className="font-semibold">Gender: </span>{teacher.gender}
+                  <span className="font-semibold">Gender: </span>
+                  {teacher.gender}
                 </div>
                 <div>
-                  <span className="font-semibold">Role: </span>{teacher.role}
+                  <span className="font-semibold">Role: </span>
+                  {teacher.role}
                 </div>
                 <div>
-                  <span className="font-semibold">Phone: </span>{teacher.phone}
+                  <span className="font-semibold">Phone: </span>
+                  {teacher.phone}
                 </div>
                 <div>
-                  <span className="font-semibold">Email: </span>{teacher.email}
+                  <span className="font-semibold">Email: </span>
+                  {teacher.email}
                 </div>
                 <div className="flex items-center space-x-2">
                   <span className="font-semibold">Password: </span>
@@ -117,8 +128,14 @@ const TeacherTable = ({ teachers, onEdit, onDelete }) => {
                   </td>
                   <td className="px-4 py-2">
                     <div className="flex space-x-2">
-                      <EditTeacherButton teacher={teacher} onClick={() => onEdit(teacher)} />
-                      <DeleteTeacherButton teacher={teacher} onClick={() => onDelete(teacher.id)} />
+                      <EditTeacherButton
+                        teacher={teacher}
+                        onClick={() => onEdit(teacher)}
+                      />
+                      <DeleteTeacherButton
+                        teacher={teacher}
+                        onDelete={() => onDelete(teacher.id)}  // FIXED HERE
+                      />
                     </div>
                   </td>
                 </tr>

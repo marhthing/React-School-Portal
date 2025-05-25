@@ -11,17 +11,26 @@ export default function SubjectsTable({
   onAssignTeachers,
 }) {
   // Helper to get teacher names from IDs
-  function getTeacherNames(teacherIds) {
-    return teacherIds
-      .map((id) => teachers.find((t) => t.id === id))
-      .filter(Boolean)
-      .map((t) => t.name)
-      .join(', ');
-  }
+function getClassNames(classIds = []) {
+  return classIds
+    .map((id) => classes.find((c) => Number(c.id) === Number(id)))
+    .filter(Boolean)
+    .map((c) => c.name)
+    .join(', ');
+}
+
+function getTeacherNames(teacherIds = []) {
+  return teacherIds
+    .map((id) => teachers.find((t) => Number(t.id) === Number(id)))
+    .filter(Boolean)
+    .map((t) => t.name)
+    .join(', ');
+}
+
 
   return (
     <>
-      {/* Desktop/Tablet Table */}
+      {/* Desktop Table */}
       <div className="overflow-x-auto border rounded hidden md:block">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-100 dark:bg-gray-800">
@@ -34,7 +43,6 @@ export default function SubjectsTable({
               <th className="px-4 py-2 text-center text-sm font-semibold">Actions</th>
             </tr>
           </thead>
-
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
             {subjects.length === 0 ? (
               <tr>
@@ -45,39 +53,36 @@ export default function SubjectsTable({
             ) : (
               subjects.map((subj) => (
                 <tr key={subj.id} className="hover:bg-gray-50 dark:hover:bg-gray-900">
-                  <td className="px-4 py-2 whitespace-nowrap">{subj.name}</td>
-                  <td className="px-4 py-2 whitespace-nowrap">{subj.abbreviation}</td>
-                  <td className="px-4 py-2 whitespace-nowrap">
+                  <td className="px-4 py-2">{subj.name}</td>
+                  <td className="px-4 py-2">{subj.abbreviation}</td>
+                  <td className="px-4 py-2">
                     <SubjectCategoryBadge category={subj.category} />
                   </td>
-                  <td className="px-4 py-2 whitespace-nowrap">
-                    {subj.assignedClasses.join(', ')}
+                  <td className="px-4 py-2">
+                    {getClassNames(subj.assignedClasses)}
                   </td>
-                  <td
-                    className="px-4 py-2 whitespace-nowrap"
-                    title={getTeacherNames(subj.assignedTeachers)}
-                  >
-                    {subj.assignedTeachers.length}
+                  <td className="px-4 py-2" title={getTeacherNames(subj.assignedTeachers)}>
+                    {subj.assignedTeachers?.length || 0}
                   </td>
-                  <td className="px-4 py-2 whitespace-nowrap text-center space-x-2">
+                  <td className="px-4 py-2 text-center space-x-2">
                     <button
                       onClick={() => onEdit(subj)}
-                      title="Edit Subject"
                       className="text-blue-600 hover:text-blue-800"
+                      title="Edit"
                     >
                       <FaEdit />
                     </button>
                     <button
                       onClick={() => onDelete(subj)}
-                      title="Delete Subject"
                       className="text-red-600 hover:text-red-800"
+                      title="Delete"
                     >
                       <FaTrash />
                     </button>
                     <button
                       onClick={() => onAssignTeachers(subj)}
-                      title="Assign Teachers"
                       className="text-green-600 hover:text-green-800"
+                      title="Assign Teachers"
                     >
                       <FaUserPlus />
                     </button>
@@ -95,48 +100,40 @@ export default function SubjectsTable({
           <div className="text-center py-4 text-gray-500">No subjects found.</div>
         ) : (
           subjects.map((subj) => (
-            <div
-              key={subj.id}
-              className="border rounded p-4 shadow-sm bg-white dark:bg-gray-800"
-            >
+            <div key={subj.id} className="border rounded p-4 shadow-sm bg-white dark:bg-gray-800">
               <div className="flex justify-between items-center mb-2">
                 <h2 className="text-lg font-semibold">{subj.name}</h2>
-                <div className="space-x-2 text-sm flex-shrink-0">
+                <div className="space-x-2">
                   <button
                     onClick={() => onEdit(subj)}
-                    title="Edit Subject"
                     className="text-blue-600 hover:text-blue-800"
+                    title="Edit"
                   >
                     <FaEdit />
                   </button>
                   <button
                     onClick={() => onDelete(subj)}
-                    title="Delete Subject"
                     className="text-red-600 hover:text-red-800"
+                    title="Delete"
                   >
                     <FaTrash />
                   </button>
                   <button
                     onClick={() => onAssignTeachers(subj)}
-                    title="Assign Teachers"
                     className="text-green-600 hover:text-green-800"
+                    title="Assign Teachers"
                   >
                     <FaUserPlus />
                   </button>
                 </div>
               </div>
-              <p>
-                <span className="font-semibold">Abbreviation:</span> {subj.abbreviation}
+              <p><strong>Abbreviation:</strong> {subj.abbreviation}</p>
+              <p className="flex items-center gap-1">
+                <strong>Category:</strong> <SubjectCategoryBadge category={subj.category} />
               </p>
-              <p className="my-1 flex items-center">
-                <span className="font-semibold mr-2">Category:</span>
-                <SubjectCategoryBadge category={subj.category} />
-              </p>
-              <p>
-                <span className="font-semibold">Assigned Classes:</span> {subj.assignedClasses.join(', ')}
-              </p>
+              <p><strong>Assigned Classes:</strong> {getClassNames(subj.assignedClasses)}</p>
               <p title={getTeacherNames(subj.assignedTeachers)}>
-                <span className="font-semibold">Assigned Teachers:</span> {subj.assignedTeachers.length}
+                <strong>Assigned Teachers:</strong> {subj.assignedTeachers?.length || 0}
               </p>
             </div>
           ))

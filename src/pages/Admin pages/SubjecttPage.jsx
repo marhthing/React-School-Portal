@@ -1,44 +1,21 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import AdminLayout from '../../components/AdminLayout';  // <-- import AdminLayout
+import AdminLayout from '../../components/AdminLayout';
 import SubjectFilters from '../../components/Admin UI/Subject/SubjectFilters';
 import SubjectsTable from '../../components/Admin UI/Subject/SubjectsTable';
 import AddEditSubjectModal from '../../components/Admin UI/Subject/AddEditSubjectModal';
 import AssignTeachersModal from '../../components/Admin UI/Subject/AssignTeachersModal';
 import ConfirmDeleteModal from '../../components/Admin UI/Subject/ConfirmDeleteModal';
+import Spinner from '../../components/Spinner';
 
-const dummySubjects = [
-  {
-    id: 1,
-    name: 'Mathematics',
-    abbreviation: 'MATH',
-    category: 'Science',
-    assignedClasses: ['Grade 9', 'Grade 10'],
-    assignedTeachers: [1, 2],
-  },
-  {
-    id: 2,
-    name: 'History',
-    abbreviation: 'HIST',
-    category: 'General',
-    assignedClasses: ['Grade 9'],
-    assignedTeachers: [3],
-  },
-  // ... more dummy subjects
-];
 
-const dummyClasses = ['Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'];
-
-const dummyTeachers = [
-  { id: 1, name: 'Alice Johnson' },
-  { id: 2, name: 'Bob Smith' },
-  { id: 3, name: 'Charlie Davis' },
-];
+const API_SUBJECTS = "http://localhost/sfgs_api/api/subjects.php";
+const API_CLASSES = "http://localhost/sfgs_api/api/get_classes.php";
+const API_TEACHERS = "http://localhost/sfgs_api/api/get_teachers.php";
 
 export default function SubjectsPage() {
-  // All subject data & related data
-  const [subjects, setSubjects] = useState(dummySubjects);
-  const [classes] = useState(dummyClasses);
-  const [teachers] = useState(dummyTeachers);
+  const [subjects, setSubjects] = useState([]);
+  const [classes, setClasses] = useState([]);
+  const [teachers, setTeachers] = useState([]);
 
   // Filters
   const [searchTerm, setSearchTerm] = useState('');
@@ -46,133 +23,193 @@ export default function SubjectsPage() {
   const [filterClass, setFilterClass] = useState('');
   const [filterTeacher, setFilterTeacher] = useState('');
 
-  // Modals state
+  // Modal state
   const [isAddEditModalOpen, setAddEditModalOpen] = useState(false);
   const [isAssignTeachersModalOpen, setAssignTeachersModalOpen] = useState(false);
   const [isConfirmDeleteModalOpen, setConfirmDeleteModalOpen] = useState(false);
 
-  // Currently selected subject for editing/assigning/deleting
+  // Currently selected subject
   const [selectedSubject, setSelectedSubject] = useState(null);
+
+  const [loadingSubjects, setLoadingSubjects] = useState(true);
+
+
+  // Fetch all initial data on mount
+  useEffect(() => {
+    fetchSubjects();
+    fetchClasses();
+    fetchTeachers();
+  }, []);
+
+async function fetchSubjects() {
+  setLoadingSubjects(true);
+  try {
+    const res = await fetch(API_SUBJECTS, { credentials: 'include' });
+    if (!res.ok) throw new Error('Failed to fetch subjects');
+    const data = await res.json();
+    setSubjects(data);
+  } catch (error) {
+    console.error('Fetch subjects error:', error);
+  } finally {
+    setLoadingSubjects(false);
+  }
+}
+
+
+  async function fetchClasses() {
+    try {
+      const res = await fetch(API_CLASSES, { credentials: 'include' });
+      if (!res.ok) throw new Error('Failed to fetch classes');
+      const data = await res.json();
+      setClasses(data);
+    } catch (error) {
+      console.error('Fetch classes error:', error);
+    }
+  }
+
+  async function fetchTeachers() {
+    try {
+      const res = await fetch(API_TEACHERS, { credentials: 'include' });
+      if (!res.ok) throw new Error('Failed to fetch teachers');
+      const data = await res.json();
+      setTeachers(data);
+    } catch (error) {
+      console.error('Fetch teachers error:', error);
+    }
+  }
 
   // Filtered subjects memoized for performance
   const filteredSubjects = useMemo(() => {
     return subjects.filter((subj) => {
-      // Search filter (name or abbreviation)
       const search = searchTerm.toLowerCase();
       if (
         search &&
         !(
           subj.name.toLowerCase().includes(search) ||
-          subj.abbreviation.toLowerCase().includes(search)
+          (subj.abbreviation && subj.abbreviation.toLowerCase().includes(search))
         )
-      ) {
-        return false;
-      }
+      ) return false;
 
-      // Category filter
-      if (filterCategory && subj.category !== filterCategory) {
-        return false;
-      }
+      if (filterCategory && subj.category !== filterCategory) return false;
 
-      // Class filter
-      if (filterClass && !subj.assignedClasses.includes(filterClass)) {
-        return false;
-      }
+      if (filterClass && (!subj.assignedClasses || !subj.assignedClasses.includes(filterClass))) return false;
 
-      // Teacher filter
-      if (
-        filterTeacher &&
-        !subj.assignedTeachers.includes(parseInt(filterTeacher, 10))
-      ) {
-        return false;
-      }
+      if (filterTeacher && (!subj.assignedTeachers || !subj.assignedTeachers.includes(parseInt(filterTeacher, 10)))) return false;
 
       return true;
     });
   }, [subjects, searchTerm, filterCategory, filterClass, filterTeacher]);
 
-  // Handlers for filter changes
-  function handleSearchChange(value) {
-    setSearchTerm(value);
-  }
-
-  function handleCategoryChange(value) {
-    setFilterCategory(value);
-  }
-
-  function handleClassChange(value) {
-    setFilterClass(value);
-  }
-
-  function handleTeacherChange(value) {
-    setFilterTeacher(value);
-  }
-
-  // Open Add/Edit modal for new or existing subject
+  // Modal handlers
   function openAddEditModal(subject = null) {
     setSelectedSubject(subject);
     setAddEditModalOpen(true);
   }
-
   function closeAddEditModal() {
     setSelectedSubject(null);
     setAddEditModalOpen(false);
   }
 
-  // Open Assign Teachers modal
   function openAssignTeachersModal(subject) {
     setSelectedSubject(subject);
     setAssignTeachersModalOpen(true);
   }
-
   function closeAssignTeachersModal() {
     setSelectedSubject(null);
     setAssignTeachersModalOpen(false);
   }
 
-  // Open Confirm Delete modal
   function openConfirmDeleteModal(subject) {
     setSelectedSubject(subject);
     setConfirmDeleteModalOpen(true);
   }
-
   function closeConfirmDeleteModal() {
     setSelectedSubject(null);
     setConfirmDeleteModalOpen(false);
   }
 
-  // Add new subject or update existing
-  function handleSaveSubject(subjectData) {
-    if (subjectData.id) {
-      // Update existing
-      setSubjects((prev) =>
-        prev.map((subj) => (subj.id === subjectData.id ? subjectData : subj))
-      );
-    } else {
-      // Add new, generate new id
-      const newId = Math.max(0, ...subjects.map((s) => s.id)) + 1;
-      setSubjects((prev) => [...prev, { ...subjectData, id: newId }]);
+  // Save (Add or Update) subject via API
+  async function handleSaveSubject(subjectData) {
+    try {
+      if (subjectData.id) {
+        // Update existing subject
+        const res = await fetch(`${API_SUBJECTS}?id=${subjectData.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(subjectData),
+          credentials: 'include',
+        });
+        if (!res.ok) throw new Error('Failed to update subject');
+        const updatedSubject = await res.json();
+
+        setSubjects((prev) =>
+          prev.map((subj) => (subj.id === updatedSubject.id ? updatedSubject : subj))
+        );
+      } else {
+        // Add new subject
+        const res = await fetch(API_SUBJECTS, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(subjectData),
+          credentials: 'include',
+        });
+        if (!res.ok) throw new Error('Failed to add subject');
+        const newSubject = await res.json();
+
+        setSubjects((prev) => [...prev, newSubject]);
+      }
+      closeAddEditModal();
+    } catch (error) {
+      console.error('Save subject error:', error);
+      alert('Failed to save subject. Please try again.');
     }
-    closeAddEditModal();
   }
 
-  // Update assigned teachers of a subject
-  function handleUpdateAssignedTeachers(subjectId, assignedTeacherIds) {
+  // Delete subject via API
+  async function handleDeleteSubject(subjectId) {
+    try {
+      const res = await fetch(`${API_SUBJECTS}?id=${subjectId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error('Failed to delete subject');
+      const result = await res.json();
+      if (result.success) {
+        setSubjects((prev) => prev.filter((subj) => subj.id !== subjectId));
+        closeConfirmDeleteModal();
+      } else {
+        throw new Error('Delete operation unsuccessful');
+      }
+    } catch (error) {
+      console.error('Delete subject error:', error);
+      alert('Failed to delete subject. Please try again.');
+    }
+  }
+
+async function handleUpdateAssignedTeachers(subjectId, assignedTeacherIds) {
+  try {
+    const res = await fetch(API_SUBJECTS, {  // no ?id= here
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: subjectId, assignedTeachers: assignedTeacherIds }),
+      credentials: 'include',
+    });
+
+    if (!res.ok) throw new Error('Failed to update assigned teachers');
+    const updatedSubject = await res.json();
+
     setSubjects((prev) =>
-      prev.map((subj) =>
-        subj.id === subjectId
-          ? { ...subj, assignedTeachers: assignedTeacherIds }
-          : subj
-      )
+      prev.map((subj) => (subj.id === subjectId ? updatedSubject : subj))
     );
     closeAssignTeachersModal();
+  } catch (error) {
+    console.error('Assign teachers error:', error);
+    alert('Failed to assign teachers. Please try again.');
   }
+}
 
-  // Delete subject
-  function handleDeleteSubject(subjectId) {
-    setSubjects((prev) => prev.filter((subj) => subj.id !== subjectId));
-    closeConfirmDeleteModal();
-  }
+
+
 
   return (
     <AdminLayout>
@@ -181,13 +218,13 @@ export default function SubjectsPage() {
 
         <SubjectFilters
           searchTerm={searchTerm}
-          onSearchChange={handleSearchChange}
+          onSearchChange={setSearchTerm}
           filterCategory={filterCategory}
-          onCategoryChange={handleCategoryChange}
+          onCategoryChange={setFilterCategory}
           filterClass={filterClass}
-          onClassChange={handleClassChange}
+          onClassChange={setFilterClass}
           filterTeacher={filterTeacher}
-          onTeacherChange={handleTeacherChange}
+          onTeacherChange={setFilterTeacher}
           classes={classes}
           teachers={teachers}
         />
@@ -201,14 +238,21 @@ export default function SubjectsPage() {
           </button>
         </div>
 
-        <SubjectsTable
-          subjects={filteredSubjects}
-          classes={classes}
-          teachers={teachers}
-          onEdit={openAddEditModal}
-          onDelete={openConfirmDeleteModal}
-          onAssignTeachers={openAssignTeachersModal}
-        />
+       {loadingSubjects ? (
+  <div className="flex justify-center items-center h-40">
+    <Spinner />
+  </div>
+) : (
+  <SubjectsTable
+    subjects={filteredSubjects}
+    classes={classes}
+    teachers={teachers}
+    onEdit={openAddEditModal}
+    onDelete={openConfirmDeleteModal}
+    onAssignTeachers={openAssignTeachersModal}
+  />
+)}
+
 
         {isAddEditModalOpen && (
           <AddEditSubjectModal

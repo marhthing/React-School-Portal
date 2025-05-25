@@ -52,10 +52,11 @@ export default function SubjectFilters({
       >
         <option value="">All Classes</option>
         {classes.map((cls) => (
-          <option key={cls} value={cls}>
-            {cls}
-          </option>
-        ))}
+  <option key={cls.id} value={cls.id}>
+    {cls.name}
+  </option>
+))}
+
       </select>
 
       {/* Teacher Dropdown */}
