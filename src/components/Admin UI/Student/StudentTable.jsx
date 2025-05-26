@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import EditStudentButton from "./EditStudentButton";
 import DeleteStudentButton from "./DeleteStudentButton";
 
-const StudentTable = ({ students, onEdit, onDelete }) => {
+const StudentTable = ({ students, onEditStudent, onDelete }) => {
   const [visiblePasswords, setVisiblePasswords] = useState({});
 
   const togglePasswordVisibility = (regNumber) => {
@@ -34,30 +34,43 @@ const StudentTable = ({ students, onEdit, onDelete }) => {
               <div className="flex justify-between mb-2">
                 <span className="font-semibold">#{index + 1}</span>
                 <div className="flex space-x-2">
-                  <EditStudentButton student={student} onClick={() => onEdit(student)} />
-                  <DeleteStudentButton student={student} onClick={() => onDelete(student.regNumber)} />
+                  <EditStudentButton
+                    student={student}
+                    onStudentUpdated={onEditStudent}
+                  />
+                  <DeleteStudentButton
+                    student={student}
+                    onDelete={() => onDelete(student.regNumber)}
+                  />
                 </div>
               </div>
 
               <div className="space-y-1 text-sm">
                 <div>
-                  <span className="font-semibold">Name: </span>{student.fullName}
+                  <span className="font-semibold">Name: </span>
+                  {student.fullName}
                 </div>
                 <div>
-                  <span className="font-semibold">Gender: </span>{student.gender}
+                  <span className="font-semibold">Gender: </span>
+                  {student.gender}
                 </div>
                 <div>
-                  <span className="font-semibold">Class: </span>{student.className}
+                  <span className="font-semibold">Class: </span>
+                  {student.className}
                 </div>
                 <div>
-                  <span className="font-semibold">Phone: </span>{student.phone}
+                  <span className="font-semibold">Phone: </span>
+                  {student.phone}
                 </div>
                 <div>
-                  <span className="font-semibold">Reg Number: </span>{student.regNumber}
+                  <span className="font-semibold">Reg Number: </span>
+                  {student.regNumber}
                 </div>
                 <div className="flex items-center space-x-2">
                   <span className="font-semibold">Password: </span>
-                  <span className="font-mono">{isPasswordVisible ? student.password : "••••••••"}</span>
+                  <span className="font-mono">
+                    {isPasswordVisible ? student.password : "••••••••"}
+                  </span>
                   <button
                     onClick={() => togglePasswordVisibility(student.regNumber)}
                     className="text-blue-500 hover:underline text-xs"
@@ -115,8 +128,14 @@ const StudentTable = ({ students, onEdit, onDelete }) => {
                   </td>
                   <td className="px-4 py-2">
                     <div className="flex space-x-2">
-                      <EditStudentButton student={student} onClick={() => onEdit(student)} />
-                      <DeleteStudentButton student={student} onClick={() => onDelete(student.regNumber)} />
+                      <EditStudentButton
+                        student={student}
+                        onStudentUpdated={onEditStudent}
+                      />
+                      <DeleteStudentButton
+                        student={student}
+                        onDelete={() => onDelete(student.regNumber)}
+                      />
                     </div>
                   </td>
                 </tr>

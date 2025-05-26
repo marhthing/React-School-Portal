@@ -1,25 +1,27 @@
 import React, { useState, useEffect } from "react";
 
 const initialFormState = {
-  fullName: "",
+  firstName: "",
+  lastName: "",
+  otherName: "",
   gender: "Male",
-  className: "",
+  dobDay: "",
+  dobMonth: "",
+  dobYear: "",
   phone: "",
-  regNumber: "",
+  homeAddress: "",
+  state: "",
+  nationality: "",
+  sponsorName: "",
+  sponsorPhone: "",
+  sponsorRelationship: "",
+  className: "",
   password: "",
 };
 
 const GENDER_OPTIONS = ["Male", "Female", "Other"];
-const CLASS_OPTIONS = [
-  "Primary 1",
-  "Primary 2",
-  "Primary 3",
-  "Primary 4",
-  "Primary 5",
-  "Primary 6",
-];
 
-const StudentModal = ({ mode, studentData = {}, onSubmit, onClose }) => {
+const StudentModal = ({ mode, studentData = {}, onSubmit, onClose, classOptions}) => {
   const [formData, setFormData] = useState(initialFormState);
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
@@ -127,36 +129,37 @@ const StudentModal = ({ mode, studentData = {}, onSubmit, onClose }) => {
             </select>
           </div>
 
-          {/* Class */}
-          <div>
-            <label
-              htmlFor="className"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              Class <span className="text-red-500">*</span>
-            </label>
-            <select
-              id="className"
-              name="className"
-              value={formData.className}
-              onChange={handleChange}
-              className={`mt-1 block w-full rounded-md border ${
-                errors.className
-                  ? "border-red-500"
-                  : "border-gray-300 dark:border-gray-600"
-              } shadow-sm focus:ring focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white`}
-            >
-              <option value="">Select class</option>
-              {CLASS_OPTIONS.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-            {errors.className && (
-              <p className="text-red-500 text-xs mt-1">{errors.className}</p>
-            )}
-          </div>
+        {/* Class */}
+<div>
+  <label
+    htmlFor="className"
+    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+  >
+    Class <span className="text-red-500">*</span>
+  </label>
+  <select
+    id="className"
+    name="className"
+    value={formData.className}
+    onChange={handleChange}
+    className={`mt-1 block w-full rounded-md border ${
+      errors.className
+        ? "border-red-500"
+        : "border-gray-300 dark:border-gray-600"
+    } shadow-sm focus:ring focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white`}
+  >
+    <option value="">Select class</option>
+{classOptions?.map((c) => (
+  <option key={c.id} value={c.id}>{c.name}</option>
+))}
+  </select>
+  {errors.className && (
+    <p className="text-red-500 text-xs mt-1">{errors.className}</p>
+  )}
+</div>
+
+
+
 
           {/* Phone */}
           <div>

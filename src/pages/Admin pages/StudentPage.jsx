@@ -7,86 +7,91 @@ import StudentModal from "../../components/Admin UI/Student/StudentModal";
 import AddStudentButton from "../../components/Admin UI/Student/AddStudentButton";
 import StudentExportButtons from "../../components/Admin UI/Student/StudentExportButtons";
 import Pagination from "../../components/Admin UI/Pagination";
-// import StudentBulkUpload from "../../components/Admin UI/Student/StudentBulkUpload";
-
-const fetchStudentsFromAPI = async () => {
-  return [
-    {
-      regNumber: "REG001",
-      fullName: "Alice Johnson",
-      gender: "Female",
-      className: "Primary 1",
-      phone: "123456789",
-      password: "pass123",
-    },
-    {
-      regNumber: "REG002",
-      fullName: "Bob Smith",
-      gender: "Male",
-      className: "Primary 2",
-      phone: "987654321",
-      password: "password",
-    },
-    // ...add more sample students as needed
-  ];
-};
+import Spinner from "../../components/Spinner";
 
 const StudentPage = () => {
   const [students, setStudents] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
-const [searchQuery, setSearchQuery] = useState({
-  name: "",
-  className: "",
-  regNumber: ""
-});
+  const [searchQuery, setSearchQuery] = useState({
+    name: "",
+    classId: "",    // changed from className to classId
+    regNumber: "",
+  });
   const [modalMode, setModalMode] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [classOptions, setClassOptions] = useState([]);
+  const [loadingClasses, setLoadingClasses] = useState(true);
+  const [loadingStudents, setLoadingStudents] = useState(true);
 
-  const [itemsPerPage, setItemsPerPage] = useState(10); // default mobile
-
+  // Fetch classes from API - get array of {id, name}
   useEffect(() => {
-    (async () => {
-      const data = await fetchStudentsFromAPI();
-      setStudents(data);
-      setFilteredStudents(data);
-    })();
+    async function fetchClasses() {
+      setLoadingClasses(true);
+      try {
+        const res = await fetch("http://localhost/sfgs_api/api/get_classes.php");
+        if (!res.ok) throw new Error("Failed to fetch classes");
+        const data = await res.json();
+        // Assuming API returns array directly or in data.classes
+        setClassOptions(data.classes || data || []);
+      } catch (error) {
+        console.error("Error fetching classes:", error);
+      } finally {
+        setLoadingClasses(false);
+      }
+    }
+    fetchClasses();
   }, []);
 
+  // Fetch students from API
   useEffect(() => {
-    // Responsive items per page: 10 mobile, 50 desktop (md breakpoint 768px)
-    const mediaQuery = window.matchMedia("(min-width: 768px)");
-
-    const handleResize = () => {
-      if (mediaQuery.matches) {
-        setItemsPerPage(50);
-      } else {
-        setItemsPerPage(10);
+    async function fetchStudents() {
+      setLoadingStudents(true);
+      try {
+        const res = await fetch("http://localhost/sfgs_api/api/students.php");
+        if (!res.ok) throw new Error("Failed to fetch students");
+        const data = await res.json();
+        setStudents(data.students || []);
+        setFilteredStudents(data.students || []);
+      } catch (error) {
+        console.error("Error fetching students:", error);
+      } finally {
+        setLoadingStudents(false);
       }
+    }
+    fetchStudents();
+  }, []);
+
+  // Responsive items per page
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(min-width: 768px)");
+    const handleResize = () => {
+      setItemsPerPage(mediaQuery.matches ? 50 : 10);
     };
-
-    handleResize(); // initial check
-
+    handleResize();
     mediaQuery.addEventListener("change", handleResize);
-
     return () => mediaQuery.removeEventListener("change", handleResize);
   }, []);
 
-useEffect(() => {
+  // Filter students based on searchQuery
+ useEffect(() => {
   let temp = [...students];
 
-  if ((searchQuery.name || "").trim()) {
+  if (searchQuery.name.trim()) {
     temp = temp.filter((s) =>
       s.fullName.toLowerCase().includes(searchQuery.name.toLowerCase())
     );
   }
 
-  if (searchQuery.className) {
-    temp = temp.filter((s) => s.className === searchQuery.className);
+  if (searchQuery.classId) {
+    temp = temp.filter(
+      (s) => String(s.classId) === String(searchQuery.classId)
+    );
   }
 
-  if ((searchQuery.regNumber || "").trim()) {
+  if (searchQuery.regNumber.trim()) {
     temp = temp.filter((s) =>
       s.regNumber.toLowerCase().includes(searchQuery.regNumber.toLowerCase())
     );
@@ -99,7 +104,6 @@ useEffect(() => {
 
   const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
 
-  // If currentPage is out of range after filters or itemsPerPage changes, reset to 1
   useEffect(() => {
     if (currentPage > totalPages) {
       setCurrentPage(1);
@@ -111,6 +115,7 @@ useEffect(() => {
     currentPage * itemsPerPage
   );
 
+  // Modal handlers
   const openCreateModal = () => {
     setModalMode("create");
     setEditingStudent(null);
@@ -128,94 +133,138 @@ useEffect(() => {
     setEditingStudent(null);
   };
 
-  const handleAddOrEditSubmit = (formData) => {
+  // Add or Edit student submit handler
+  const handleAddOrEditSubmit = async (formData) => {
     if (modalMode === "create") {
-      setStudents((prev) => [...prev, formData]);
+      try {
+        const res = await fetch("http://localhost/sfgs_api/api/students.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        });
+        const data = await res.json();
+        if (data.success) {
+          const newStudent = { ...formData, regNumber: data.regNumber || formData.regNumber };
+          setStudents((prev) => [...prev, newStudent]);
+        } else {
+          alert("Error adding student: " + (data.error || "Unknown error"));
+        }
+      } catch (error) {
+        console.error(error);
+        alert("Error adding student");
+      }
     } else if (modalMode === "edit") {
-      setStudents((prev) =>
-        prev.map((stu) =>
-          stu.regNumber === formData.regNumber ? formData : stu
-        )
-      );
+      try {
+        const res = await fetch(
+          `http://localhost/sfgs_api/api/students.php?id=${formData.regNumber}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(formData),
+          }
+        );
+        const data = await res.json();
+        if (data.success) {
+          setStudents((prev) =>
+            prev.map((stu) => (stu.regNumber === formData.regNumber ? formData : stu))
+          );
+        } else {
+          alert("Error updating student: " + (data.error || "Unknown error"));
+        }
+      } catch (error) {
+        console.error(error);
+        alert("Error updating student");
+      }
     }
     closeModal();
   };
 
-  const handleDelete = (regNumber) => {
-    if (window.confirm("Are you sure you want to delete this student?")) {
-      setStudents((prev) => prev.filter((stu) => stu.regNumber !== regNumber));
+  // Delete student handler
+  const handleDelete = async (regNumber) => {
+    if (!window.confirm("Are you sure you want to delete this student?")) return;
+
+    try {
+      const res = await fetch(
+        `http://localhost/sfgs_api/api/students.php?id=${regNumber}`,
+        {
+          method: "DELETE",
+        }
+      );
+      const data = await res.json();
+      if (data.success) {
+        setStudents((prevStudents) =>
+          prevStudents.filter((student) => student.regNumber !== regNumber)
+        );
+      } else {
+        alert("Error deleting student: " + (data.error || "Unknown error"));
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error deleting student");
     }
   };
 
-  const handleSearchChange = (newQuery) => {
-    setSearchQuery(newQuery);
-  };
+  // Search filter change
+const handleSearchChange = (newQuery) => {
+  setSearchQuery(newQuery);
+};
 
+
+  // Pagination change
   const handlePageChange = (page) => {
     if (page < 1 || page > totalPages) return;
     setCurrentPage(page);
   };
 
-// const handleBulkUpload = (newStudents) => {
-//   setStudents((prevStudents) => {
-//     const existingRegs = new Set(prevStudents.map(s => s.regNumber));
-//     // Only add new students whose regNumber is not already in the list
-//     const filteredNewStudents = newStudents.filter(s => !existingRegs.has(s.regNumber));
-//     return [...prevStudents, ...filteredNewStudents];
-//   });
-// };
-
+  // Show spinner while loading data
+  if (loadingClasses || loadingStudents) {
+    return (
+      <AdminLayout>
+        <div className="flex justify-center items-center h-[70vh]">
+          <Spinner />
+        </div>
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout>
       <div className="space-y-6 p-4 mt-20">
-        {/* Header: Summary */}
         <StudentSummary totalStudents={students.length} />
 
-        {/* Search, Add Button, Export Buttons */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-center">
           <StudentSearchFilter
-            onFilterChange={handleSearchChange}  // Correct prop name
+            filterValues={searchQuery}
+            onFilterChange={handleSearchChange}
+            classOptions={classOptions}
           />
 
-          </div>
-          <div className="w-full">
-            <AddStudentButton onClick={openCreateModal} />
-          </div>
-          <div className="w-full">
-            <StudentExportButtons students={filteredStudents} />
-          </div>
+          <AddStudentButton onOpen={openCreateModal} />
+
+          <StudentExportButtons students={filteredStudents} />
         </div>
 
-        {/* Bulk Upload */}
-        {/* <div className="w-full">
-          <StudentBulkUpload onStudentsUploaded={handleBulkUpload} />
-        </div> */}
-
-        {/* Student Table */}
         <div className="w-full overflow-x-auto rounded-lg shadow-sm">
           <StudentTable
             students={currentStudents}
-            onEdit={openEditModal}
+            onEditStudent={openEditModal}
             onDelete={handleDelete}
           />
         </div>
 
-        {/* Pagination */}
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={handlePageChange}
         />
 
-        {/* Modal */}
         {modalOpen && (
           <StudentModal
             mode={modalMode}
             studentData={editingStudent}
             onSubmit={handleAddOrEditSubmit}
             onClose={closeModal}
+            classOptions={classOptions}
           />
         )}
       </div>

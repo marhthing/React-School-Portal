@@ -1,36 +1,18 @@
-import React, { useState } from "react";
+import React from "react";
 
-const CLASS_OPTIONS = [
-  "",
-  "Primary 1",
-  "Primary 2",
-  "Primary 3",
-  "Primary 4",
-  "Primary 5",
-  "Primary 6",
-];
-
-const StudentSearchFilter = ({ onFilterChange }) => {
-  const [name, setName] = useState("");
-  const [className, setClassName] = useState("");
-  const [regNumber, setRegNumber] = useState("");
+const StudentSearchFilter = ({ filterValues, onFilterChange, classOptions = [] }) => {
+  const { name = "", classId = "", regNumber = "" } = filterValues || {};
 
   const handleNameChange = (e) => {
-    const value = e.target.value;
-    setName(value);
-    onFilterChange({ name: value, className, regNumber });
+    onFilterChange({ ...filterValues, name: e.target.value });
   };
 
   const handleClassChange = (e) => {
-    const value = e.target.value;
-    setClassName(value);
-    onFilterChange({ name, className: value, regNumber });
+    onFilterChange({ ...filterValues, classId: e.target.value });
   };
 
   const handleRegNumberChange = (e) => {
-    const value = e.target.value;
-    setRegNumber(value);
-    onFilterChange({ name, className, regNumber: value });
+    onFilterChange({ ...filterValues, regNumber: e.target.value });
   };
 
   return (
@@ -50,13 +32,14 @@ const StudentSearchFilter = ({ onFilterChange }) => {
         className="px-3 py-2 border rounded-md w-full sm:w-1/3 dark:bg-gray-700 dark:text-white"
       />
       <select
-        value={className}
+        value={classId}
         onChange={handleClassChange}
         className="px-3 py-2 border rounded-md w-full sm:w-1/3 dark:bg-gray-700 dark:text-white"
       >
-        {CLASS_OPTIONS.map((cls) => (
-          <option key={cls} value={cls}>
-            {cls === "" ? "Filter by class" : cls}
+        <option value="">Filter by class</option>
+        {classOptions.map((cls) => (
+          <option key={cls.id} value={cls.id}>
+            {cls.name}
           </option>
         ))}
       </select>

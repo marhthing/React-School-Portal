@@ -1,15 +1,16 @@
 import React, { useState } from "react";
 import { FaTrash } from "react-icons/fa";
 
-const DeleteStudentButton = ({ student }) => {
+const DeleteStudentButton = ({ student, onDelete }) => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   const openConfirm = () => setIsConfirmOpen(true);
   const closeConfirm = () => setIsConfirmOpen(false);
 
   const handleDelete = () => {
-    // TODO: Implement delete logic here (API call or state update)
-    console.log("Deleted student:", student.regNumber);
+    if (onDelete) {
+      onDelete(student.regNumber); // or pass student if needed
+    }
     closeConfirm();
   };
 

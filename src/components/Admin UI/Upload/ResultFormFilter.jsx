@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Select from "react-select";
 
 const ResultFormFilter = ({
@@ -15,18 +15,40 @@ const ResultFormFilter = ({
   sessionsList = [],
   subjectsByClass = {},
 }) => {
-  const [subjects, setSubjects] = useState([]);
+  // Convert array to options format
+  const toOptions = (arr) => {
+    if (!Array.isArray(arr)) return [];
+    return arr.map((item) =>
+      typeof item === "string"
+        ? { value: item, label: item }
+        : { value: item.id, label: item.name }
+    );
+  };
 
-  useEffect(() => {
-    if (selectedClass && subjectsByClass[selectedClass]) {
-      setSubjects(subjectsByClass[selectedClass]);
-    } else {
-      setSubjects([]);
-    }
+  const classOptions = toOptions(classesList);
+  const termOptions = toOptions(termsList);
+  const sessionOptions = toOptions(sessionsList);
+
+const safeClassKey = selectedClass?.toString() || "";
+const classKey = Number(selectedClass);  // convert selectedClass to number
+const subjects =
+  selectedClass && subjectsByClass[classKey]
+    ? subjectsByClass[classKey]
+    : [];
+
+
+const subjectOptions = subjects.map((subj) => ({
+  value: subj.id,
+  label: subj.name,
+}));
+
+
+
+
+  // Reset subject when class changes
+  React.useEffect(() => {
     onSubjectChange("");
-  }, [selectedClass, onSubjectChange, subjectsByClass]);
-
-  const toOptions = (arr) => arr.map((item) => ({ value: item, label: item }));
+  }, [selectedClass, onSubjectChange]);
 
   const customStyles = {
     control: (base, state) => ({
@@ -58,84 +80,90 @@ const ResultFormFilter = ({
     }),
   };
 
-  const commonClassNames = {
-  control: () => "bg-white dark:bg-gray-700 text-black dark:text-white",
-  menu: () => "bg-white dark:bg-gray-700",
-};
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      {/* Class */}
+      <div>
+        <label
+          htmlFor="class-select"
+          className="block mb-1 font-medium text-gray-700 dark:text-gray-300"
+        >
+          Class
+        </label>
+        <Select
+          inputId="class-select"
+          aria-label="Select Class"
+          options={classOptions}
+          value={classOptions.find((opt) => opt.value === selectedClass) || null}
+          onChange={(option) => onClassChange(option?.value ?? "")}
+          placeholder="Select Class"
+          isClearable
+          styles={customStyles}
+        />
+      </div>
 
-return (
-  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-    {/* Class */}
-    <div>
-      <label className="block mb-1 font-medium text-gray-700 dark:text-gray-300" htmlFor="class-select">
-        Class
-      </label>
-      <Select
-        inputId="class-select"
-        options={toOptions(classesList)}
-        value={selectedClass ? { value: selectedClass, label: selectedClass } : null}
-        onChange={(option) => onClassChange(option?.value || "")}
-        placeholder="Select Class"
-        styles={customStyles}
-        isClearable
-        classNames={commonClassNames}
-      />
+      {/* Subject */}
+      <div>
+  <label
+    htmlFor="subject-select"
+    className="block mb-1 font-medium text-gray-700 dark:text-gray-300"
+  >
+    Subject
+  </label>
+  <Select
+    inputId="subject-select"
+    aria-label="Select Subject"
+    options={subjectOptions}
+    value={subjectOptions.find((opt) => opt.value === selectedSubject) || null}
+    onChange={(option) => onSubjectChange(option?.value ?? "")}
+    placeholder="Select Subject"
+    isClearable
+    isDisabled={!selectedClass}
+    styles={customStyles}
+  />
+</div>
+
+      {/* Term */}
+      <div>
+        <label
+          htmlFor="term-select"
+          className="block mb-1 font-medium text-gray-700 dark:text-gray-300"
+        >
+          Term
+        </label>
+        <Select
+          inputId="term-select"
+          aria-label="Select Term"
+          options={termOptions}
+          value={termOptions.find((opt) => opt.value === selectedTerm) || null}
+          onChange={(option) => onTermChange(option?.value ?? "")}
+          placeholder="Select Term"
+          isClearable
+          styles={customStyles}
+        />
+      </div>
+
+      {/* Session */}
+      <div>
+        <label
+          htmlFor="session-select"
+          className="block mb-1 font-medium text-gray-700 dark:text-gray-300"
+        >
+          Session
+        </label>
+        <Select
+          inputId="session-select"
+          aria-label="Select Session"
+          options={sessionOptions}
+          value={sessionOptions.find((opt) => opt.value === selectedSession) || null}
+          onChange={(option) => onSessionChange(option?.value ?? "")}
+          placeholder="Select Session"
+          isClearable
+          styles={customStyles}
+        />
+      </div>
     </div>
-
-    {/* Subject */}
-    <div>
-      <label className="block mb-1 font-medium text-gray-700 dark:text-gray-300" htmlFor="subject-select">
-        Subject
-      </label>
-      <Select
-        inputId="subject-select"
-        options={toOptions(subjects)}
-        value={selectedSubject ? { value: selectedSubject, label: selectedSubject } : null}
-        onChange={(option) => onSubjectChange(option?.value || "")}
-        placeholder="Select Subject"
-        styles={customStyles}
-        isClearable
-        isDisabled={!selectedClass}
-        classNames={commonClassNames}  // added here
-      />
-    </div>
-
-    {/* Term */}
-    <div>
-      <label className="block mb-1 font-medium text-gray-700 dark:text-gray-300" htmlFor="term-select">
-        Term
-      </label>
-      <Select
-        inputId="term-select"
-        options={toOptions(termsList)}
-        value={selectedTerm ? { value: selectedTerm, label: selectedTerm } : null}
-        onChange={(option) => onTermChange(option?.value || "")}
-        placeholder="Select Term"
-        styles={customStyles}
-        isClearable
-        classNames={commonClassNames}  // added here
-      />
-    </div>
-
-    {/* Session */}
-    <div>
-      <label className="block mb-1 font-medium text-gray-700 dark:text-gray-300" htmlFor="session-select">
-        Session
-      </label>
-      <Select
-        inputId="session-select"
-        options={toOptions(sessionsList)}
-        value={selectedSession ? { value: selectedSession, label: selectedSession } : null}
-        onChange={(option) => onSessionChange(option?.value || "")}
-        placeholder="Select Session"
-        styles={customStyles}
-        isClearable
-        classNames={commonClassNames}  // added here
-      />
-    </div>
-  </div>
-);
-
+  );
 };
 
 export default ResultFormFilter;

@@ -10,6 +10,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import SessionPage from './pages/Admin pages/SessionPage';
 import SubjectPage from './pages/Admin pages/SubjecttPage';
 import UploadPage from './pages/Admin pages/UploadPage';
+import PublishPage from './pages/Admin pages/PublishPage';
+import ReportPage from './pages/Admin pages/ReportPage'
 
 const App = () => {
   const userData = JSON.parse(localStorage.getItem('userData'));
@@ -102,6 +104,24 @@ const App = () => {
   element={
     <ProtectedRoute requiredRole="admin">
       <UploadPage />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/publish"
+  element={
+    <ProtectedRoute requiredRole="admin">
+      <PublishPage />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/report"
+  element={
+    <ProtectedRoute requiredRole="admin">
+      <ReportPage/>
     </ProtectedRoute>
   }
 />

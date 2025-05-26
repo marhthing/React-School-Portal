@@ -24,11 +24,11 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     { path: '/session', label: 'Session', icon: <FaFileAlt /> },
     { path: '/subject', label: 'Subjects', icon: <FaFileAlt /> },
     { path: '/upload', label: 'Result Upload', icon: <FaUpload /> },
-    { path: '/publish-result', label: 'Publish Result', icon: <FaCheckCircle /> },
+    { path: '/publish', label: 'Publish Result', icon: <FaCheckCircle /> },
     { path: '/promote-students', label: 'Promote Students', icon: <FaCheckCircle /> },
     { path: '/check-result', label: 'Check Result', icon: <FaFileAlt /> },
     { path: '/register-admin', label: 'Register Admin', icon: <FaUserPlus /> },
-    { path: '/reports', label: 'Reports', icon: <FaChartBar /> },
+    { path: '/report', label: 'Reports', icon: <FaChartBar /> },
     { path: '/contact-messages', label: 'Contact Messages', icon: <FaEnvelope /> },
     { path: '/website', label: 'Back to Website', icon: <FaArrowLeft /> },
   ];

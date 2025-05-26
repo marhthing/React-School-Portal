@@ -1,4 +1,3 @@
-// src/pages/UploadPage.jsx
 import React, { useState, useEffect } from "react";
 import AdminLayout from "../../components/AdminLayout";
 
@@ -7,24 +6,16 @@ import ScoreInputTable from "../../components/Admin UI/Upload/ScoreInputTable";
 import ScoreInputCardList from "../../components/Admin UI/Upload/ScoreInputCardList";
 import SubmitScoresButton from "../../components/Admin UI/Upload/SubmitScoresButton";
 import ResultToast from "../../components/Admin UI/Upload/ResultToast";
+import Spinner from "../../components/Spinner";
 
 const MAX_TOTAL_SCORE = 100;
 
-// Dummy data for filter lists (will eventually come from backend)
-const classesList = ["SSS1A", "SSS1B", "SSS2A", "SSS2B", "SSS3A", "SSS3B"];
-const termsList = ["First Term", "Second Term", "Third Term"];
-const sessionsList = ["2023/2024", "2024/2025", "2025/2026"];
-const subjectsByClass = {
-  SSS1A: ["Mathematics", "English", "Biology"],
-  SSS1B: ["Mathematics", "English", "Chemistry"],
-  SSS2A: ["Physics", "Economics", "Geography"],
-  SSS2B: ["Biology", "Government", "Commerce"],
-  SSS3A: ["Mathematics", "Physics", "Literature"],
-  SSS3B: ["Economics", "Government", "History"],
-};
-
 const UploadPage = () => {
   // Filters state
+  const [classesList, setClassesList] = useState([]);
+  const [subjectsList, setSubjectsList] = useState([]);
+  const [sessionsList, setSessionsList] = useState([]);
+
   const [selectedClass, setSelectedClass] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("");
   const [selectedTerm, setSelectedTerm] = useState("");
@@ -39,20 +30,75 @@ const UploadPage = () => {
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [isEditMode, setIsEditMode] = useState(false);
+const [subjectsByClass, setSubjectsByClass] = React.useState({});
 
   // Responsive layout
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-  // Optional: If you want to manage dark mode here or get from AdminLayout via context/prop,
-  // for now let's default it to false (light mode)
-  const darkMode = false;
+  // Terms are fixed - you can keep this or load from backend if needed
+  const termsList = ["First Term", "Second Term", "Third Term"];
 
+  const darkMode = false; // For now
+
+  // Fetch classes, subjects, sessions on mount
   useEffect(() => {
+    fetchClasses();
+    fetchSubjects();
+    fetchSessions();
+
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Fetch classes
+  const fetchClasses = async () => {
+    try {
+      const res = await fetch("http://localhost/sfgs_api/api/get_classes.php");
+      const data = await res.json();
+      setClassesList(data); // data is array of {id, name}
+    } catch (error) {
+      console.error("Failed to fetch classes", error);
+    }
+  };
+const groupSubjectsByClass = (subjects) => {
+  const map = {};
+  subjects.forEach((subject) => {
+    subject.assignedClasses.forEach((classId) => {
+      if (!map[classId]) {
+        map[classId] = [];
+      }
+      map[classId].push(subject);
+    });
+  });
+  return map;
+};
+
+  // Fetch subjects
+const fetchSubjects = async () => {
+  try {
+    const res = await fetch("http://localhost/sfgs_api/api/subjects.php");
+    const data = await res.json();
+    setSubjectsList(data);
+    setSubjectsByClass(groupSubjectsByClass(data));  // <-- Add this line
+  } catch (error) {
+    console.error("Failed to fetch subjects", error);
+  }
+};
+
+
+  // Fetch sessions
+  const fetchSessions = async () => {
+    try {
+      const res = await fetch("http://localhost/sfgs_api/api/sessions.php");
+      const data = await res.json();
+      setSessionsList(data); // data is array of {id, name}
+    } catch (error) {
+      console.error("Failed to fetch sessions", error);
+    }
+  };
+
+  // When filters change and all selected, fetch scores + students
   useEffect(() => {
     if (selectedClass && selectedSubject && selectedTerm && selectedSession) {
       fetchStudentsAndScores();
@@ -62,39 +108,54 @@ const UploadPage = () => {
     }
   }, [selectedClass, selectedSubject, selectedTerm, selectedSession]);
 
+  // Fetch scores for selected filters
   const fetchStudentsAndScores = async () => {
-    setLoading(true);
-    setErrorMsg("");
-    setSuccessMsg("");
-    try {
-      // Dummy students fetch, replace with real API call
-      const students = [
-        { id: 1, name: "John Doe", regNo: "AUL/001" },
-        { id: 2, name: "Jane Smith", regNo: "AUL/002" },
-        { id: 3, name: "Michael Brown", regNo: "AUL/003" },
-      ];
+  setLoading(true);
+  setErrorMsg("");
+  setSuccessMsg("");
+  try {
+    const classId = selectedClass; // from classesList id
+    const sessionId = selectedSession; // from sessionsList id
+    const subjectId = selectedSubject; // from subjectsList id
 
-      const scoresData = students.map((stu) => ({
-        id: stu.id,
-        name: stu.name,
-        regNo: stu.regNo,
-        ca1: "",
-        ca2: "",
-        exam: "",
-        total: 0,
-        errors: {},
-      }));
+    const url = new URL("http://localhost/sfgs_api/api/scores.php");
+    url.searchParams.append("classId", classId);
+    url.searchParams.append("subjectId", subjectId);
+    url.searchParams.append("term", selectedTerm);
+    url.searchParams.append("sessionId", sessionId);
 
-      setStudentsScores(scoresData);
-      setIsEditMode(false);
-    } catch (error) {
-      setErrorMsg("Failed to fetch students or scores.");
-      setStudentsScores([]);
-      setIsEditMode(false);
-    } finally {
-      setLoading(false);
-    }
-  };
+    const res = await fetch(url.toString());
+    if (!res.ok) throw new Error("Failed to fetch scores");
+
+    const data = await res.json();
+
+    // data is an object with 'scores' array inside
+    const scoresArray = Array.isArray(data.scores) ? data.scores : [];
+
+    const scoresData = scoresArray.map((item) => ({
+      // Adjust field names based on your API response:
+      id: item.id || item.student_regNumber || "", // score ID or student reg number
+      name: item.student_name || "",               // You may want to fetch student name separately if missing
+      regNo: item.student_regNumber || "",
+      ca1: item.ca1 ?? "",
+      ca2: item.ca2 ?? "",
+      exam: item.exam ?? "",
+      total: ((item.ca1 ?? 0) + (item.ca2 ?? 0) + (item.exam ?? 0)),
+      errors: {},
+    }));
+
+    setStudentsScores(scoresData);
+    setIsEditMode(true);
+  } catch (error) {
+    setErrorMsg("Failed to fetch students or scores.");
+    setStudentsScores([]);
+    setIsEditMode(false);
+    console.error(error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleScoreChange = (studentId, field, value) => {
     setStudentsScores((prev) =>
@@ -167,74 +228,110 @@ const UploadPage = () => {
     setSaving(true);
     setErrorMsg("");
     setSuccessMsg("");
+
     try {
-      // Simulate save call
-      await new Promise((r) => setTimeout(r, 1000));
+      // Prepare payload - adjust to your API needs
+      const payload = {
+        classId: selectedClass,
+        subjectId: selectedSubject,
+        term: selectedTerm,
+        sessionId: selectedSession,
+        scores: studentsScores.map(({ id, ca1, ca2, exam }) => ({
+          studentId: id,
+          ca1,
+          ca2,
+          exam,
+        })),
+      };
+
+      const res = await fetch("http://localhost/sfgs_api/api/scores.php", {
+        method: isEditMode ? "PUT" : "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Failed to save scores");
+      }
+
       setSuccessMsg("Scores saved successfully!");
     } catch (error) {
-      setErrorMsg("Failed to save scores.");
+      setErrorMsg(error.message);
+      console.error(error);
     } finally {
       setSaving(false);
     }
   };
 
- return (
-  <AdminLayout>
-    <div className="space-y-10 p-4 mt-20 max-w-7xl mx-auto">
-      <h1 className="text-2xl font-semibold mb-4">Upload / Edit Scores</h1>
+  return (
+    <AdminLayout>
+      <div className="space-y-10 p-4 mt-20 max-w-7xl mx-auto">
+        <h1 className="text-2xl font-semibold mb-4">Upload / Edit Scores</h1>
 
-      <ResultFormFilter
-        darkMode={darkMode}
-        classesList={classesList}
-        termsList={termsList}
-        sessionsList={sessionsList}
-        subjectsByClass={subjectsByClass}
-        selectedClass={selectedClass}
-        onClassChange={setSelectedClass}
-        selectedSubject={selectedSubject}
-        onSubjectChange={setSelectedSubject}
-        selectedTerm={selectedTerm}
-        onTermChange={setSelectedTerm}
-        selectedSession={selectedSession}
-        onSessionChange={setSelectedSession}
-      />
+        <ResultFormFilter
+          darkMode={darkMode}
+          classesList={classesList}
+          termsList={termsList}
+          sessionsList={sessionsList}
+subjectsByClass={subjectsByClass} 
+          selectedClass={selectedClass}
+          onClassChange={(val) => {
+            setSelectedClass(val);
+            setSelectedSubject(""); // reset subject when class changes
+          }}
+          selectedSubject={selectedSubject}
+          onSubjectChange={setSelectedSubject}
+          selectedTerm={selectedTerm}
+          onTermChange={setSelectedTerm}
+          selectedSession={selectedSession}
+          onSessionChange={setSelectedSession}
+          
+        />
 
-      {loading && <p className="mt-4">Loading students and scores...</p>}
+        {loading && <Spinner />}
 
-      {!loading && studentsScores.length > 0 && (
-        <>
-          {isMobile ? (
-            <ScoreInputCardList
-              studentsScores={studentsScores}
-              onScoreChange={handleScoreChange}
+        {!loading && studentsScores.length > 0 && (
+          <>
+            {isMobile ? (
+              <ScoreInputCardList
+                students={studentsScores}
+                onScoreChange={handleScoreChange}
+              />
+            ) : (
+              <ScoreInputTable
+                students={studentsScores}
+                onScoreChange={handleScoreChange}
+              />
+            )}
+
+            <SubmitScoresButton
+              onSave={handleSave}
+              saving={saving}
+              disabled={saving}
             />
-          ) : (
-            <ScoreInputTable
-              studentsScores={studentsScores}
-              onScoreChange={handleScoreChange}
-              darkMode={darkMode}
-            />
-          )}
+          </>
+        )}
 
-          <SubmitScoresButton 
-            onClick={handleSave} 
-            isLoading={saving} 
-            disabled={studentsScores.length === 0} 
+        {errorMsg && (
+          <ResultToast
+            type="error"
+            message={errorMsg}
+            onClose={() => setErrorMsg("")}
           />
-
-        </>
-      )}
-
-      {!loading && studentsScores.length === 0 && (
-        <p className="mt-4 text-gray-500">Please select all filters to load students.</p>
-      )}
-
-      {errorMsg && <ResultToast type="error" message={errorMsg} />}
-      {successMsg && <ResultToast type="success" message={successMsg} />}
-    </div>
-  </AdminLayout>
-);
-
+        )}
+        {successMsg && (
+          <ResultToast
+            type="success"
+            message={successMsg}
+            onClose={() => setSuccessMsg("")}
+          />
+        )}
+      </div>
+    </AdminLayout>
+  );
 };
 
 export default UploadPage;
