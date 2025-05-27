@@ -12,6 +12,9 @@ import SubjectPage from './pages/Admin pages/SubjecttPage';
 import UploadPage from './pages/Admin pages/UploadPage';
 import PublishPage from './pages/Admin pages/PublishPage';
 import ReportPage from './pages/Admin pages/ReportPage'
+import UserManagementPage from './pages/Admin pages/UserManagementPage';
+import SettingsPage from './pages/Admin pages/SettingsPage';
+import PrintSlipPage from './pages/Admin pages/PrintSlipPage';
 
 const App = () => {
   const userData = JSON.parse(localStorage.getItem('userData'));
@@ -122,6 +125,33 @@ const App = () => {
   element={
     <ProtectedRoute requiredRole="admin">
       <ReportPage/>
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/user-manage"
+  element={
+    <ProtectedRoute requiredRole="admin">
+      <UserManagementPage/>
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/setting"
+  element={
+    <ProtectedRoute requiredRole="admin">
+      <SettingsPage/>
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/slip"
+  element={
+    <ProtectedRoute requiredRole="admin">
+      <PrintSlipPage/>
     </ProtectedRoute>
   }
 />

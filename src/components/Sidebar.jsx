@@ -25,11 +25,13 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     { path: '/subject', label: 'Subjects', icon: <FaFileAlt /> },
     { path: '/upload', label: 'Result Upload', icon: <FaUpload /> },
     { path: '/publish', label: 'Publish Result', icon: <FaCheckCircle /> },
-    { path: '/promote-students', label: 'Promote Students', icon: <FaCheckCircle /> },
-    { path: '/check-result', label: 'Check Result', icon: <FaFileAlt /> },
-    { path: '/register-admin', label: 'Register Admin', icon: <FaUserPlus /> },
+    // { path: '/promote-students', label: 'Promote Students', icon: <FaCheckCircle /> },
+    // { path: '/check-result', label: 'Check Result', icon: <FaFileAlt /> },
+    { path: '/slip', label: 'Check Student Slip', icon: <FaFileAlt /> },
+    { path: '/user-manage', label: 'User Management', icon: <FaUserPlus /> },
     { path: '/report', label: 'Reports', icon: <FaChartBar /> },
-    { path: '/contact-messages', label: 'Contact Messages', icon: <FaEnvelope /> },
+    { path: '/setting', label: 'Settings', icon: <FaChartBar /> },
+    // { path: '/contact-messages', label: 'Contact Messages', icon: <FaEnvelope /> },
     { path: '/website', label: 'Back to Website', icon: <FaArrowLeft /> },
   ];
 
