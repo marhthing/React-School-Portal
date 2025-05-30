@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Spinner from "../../Spinner";
 
 export default function AddEditSubjectModal({
   subject,
@@ -12,23 +13,23 @@ export default function AddEditSubjectModal({
   const [category, setCategory] = useState('General');
   const [assignedClasses, setAssignedClasses] = useState([]);
   const [assignedTeachers, setAssignedTeachers] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-useEffect(() => {
-  if (subject) {
-    setName(subject.name || '');
-    setAbbreviation(subject.abbreviation || '');
-    setCategory(subject.category || 'General');
-    setAssignedClasses(subject.assignedClasses || []);
-    setAssignedTeachers(subject.assignedTeachers || []);
-  } else {
-    setName('');
-    setAbbreviation('');
-    setCategory('General');
-    setAssignedClasses([]);
-    setAssignedTeachers([]);
-  }
-}, [subject]);
-
+  useEffect(() => {
+    if (subject) {
+      setName(subject.name || '');
+      setAbbreviation(subject.abbreviation || '');
+      setCategory(subject.category || 'General');
+      setAssignedClasses(subject.assignedClasses || []);
+      setAssignedTeachers(subject.assignedTeachers || []);
+    } else {
+      setName('');
+      setAbbreviation('');
+      setCategory('General');
+      setAssignedClasses([]);
+      setAssignedTeachers([]);
+    }
+  }, [subject]);
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -37,13 +38,12 @@ useEffect(() => {
     };
   }, []);
 
-function handleClassToggle(classId) {
-  const id = Number(classId);
-  setAssignedClasses((prev) =>
-    prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
-  );
-}
-
+  function handleClassToggle(classId) {
+    const id = Number(classId);
+    setAssignedClasses((prev) =>
+      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
+    );
+  }
 
   function handleTeacherToggle(teacherId) {
     setAssignedTeachers((prev) =>
@@ -51,24 +51,30 @@ function handleClassToggle(classId) {
     );
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     if (!name.trim() || !abbreviation.trim()) {
       alert('Please fill in both Subject Name and Abbreviation.');
       return;
     }
-
-    onSave({
-      id: subject?.id,
-      name: name.trim(),
-      abbreviation: abbreviation.trim(),
-      category,
-      assignedClasses,
-      assignedTeachers,
-    });
+    setIsLoading(true);
+    try {
+      await onSave({
+        id: subject?.id,
+        name: name.trim(),
+        abbreviation: abbreviation.trim(),
+        category,
+        assignedClasses,
+        assignedTeachers,
+      });
+    } catch (error) {
+      console.error(error);
+      alert('An error occurred while saving.');
+    }
+    setIsLoading(false);
   }
 
-  const categories = ['General', 'Science', 'Art'];
+  const categories = ['General', 'Science', 'Art', 'Junior'];
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
@@ -88,6 +94,7 @@ function handleClassToggle(classId) {
               className="w-full border rounded px-3 py-2 bg-white dark:bg-gray-700 text-black dark:text-white border-gray-300 dark:border-gray-600"
               required
               autoFocus
+              disabled={isLoading}
             />
           </div>
 
@@ -100,6 +107,7 @@ function handleClassToggle(classId) {
               onChange={(e) => setAbbreviation(e.target.value)}
               className="w-full border rounded px-3 py-2 bg-white dark:bg-gray-700 text-black dark:text-white border-gray-300 dark:border-gray-600"
               required
+              disabled={isLoading}
             />
           </div>
 
@@ -110,6 +118,7 @@ function handleClassToggle(classId) {
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               className="w-full border rounded px-3 py-2 bg-white dark:bg-gray-700 text-black dark:text-white border-gray-300 dark:border-gray-600"
+              disabled={isLoading}
             >
               {categories.map((cat) => (
                 <option key={cat} value={cat}>{cat}</option>
@@ -120,33 +129,38 @@ function handleClassToggle(classId) {
           <div>
             <label className="block mb-1 font-medium">Assigned Classes</label>
             <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto border rounded p-2">
-              {classes.sort((a, b) => a.name.localeCompare(b.name)).map((cls) => (
-                <label key={cls.id} className="inline-flex items-center space-x-2">
-                  <input
-  type="checkbox"
-  checked={assignedClasses.includes(Number(cls.id))}
-  onChange={() => handleClassToggle(Number(cls.id))}
-/>
-
-                  <span>{cls.name}</span>
-                </label>
-              ))}
+              {classes
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map((cls) => (
+                  <label key={cls.id} className="inline-flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={assignedClasses.includes(Number(cls.id))}
+                      onChange={() => handleClassToggle(Number(cls.id))}
+                      disabled={isLoading}
+                    />
+                    <span>{cls.name}</span>
+                  </label>
+                ))}
             </div>
           </div>
 
           <div>
             <label className="block mb-1 font-medium">Assigned Teachers</label>
             <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto border rounded p-2">
-              {teachers.sort((a, b) => a.name.localeCompare(b.name)).map((teacher) => (
-                <label key={teacher.id} className="inline-flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    checked={assignedTeachers.includes(teacher.id)}
-                    onChange={() => handleTeacherToggle(teacher.id)}
-                  />
-                  <span>{teacher.name}</span>
-                </label>
-              ))}
+              {teachers
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map((teacher) => (
+                  <label key={teacher.id} className="inline-flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={assignedTeachers.includes(teacher.id)}
+                      onChange={() => handleTeacherToggle(teacher.id)}
+                      disabled={isLoading}
+                    />
+                    <span>{teacher.name}</span>
+                  </label>
+                ))}
             </div>
           </div>
 
@@ -155,14 +169,25 @@ function handleClassToggle(classId) {
               type="button"
               onClick={onClose}
               className="px-4 py-2 rounded border border-gray-300 hover:bg-gray-100"
+              disabled={isLoading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+              className={`px-4 py-2 rounded bg-blue-600 text-white flex items-center justify-center space-x-2 hover:bg-blue-700 ${
+                isLoading ? 'cursor-not-allowed opacity-70' : ''
+              }`}
+              disabled={isLoading}
             >
-              Save
+              {isLoading ? (
+                <>
+                  <Spinner className="w-5 h-5 text-white animate-spin" />
+                  <span>Loading...</span>
+                </>
+              ) : (
+                'Save'
+              )}
             </button>
           </div>
         </form>

@@ -23,6 +23,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     { path: '/teacher', label: 'Teacher', icon: <FaUserPlus /> },
     { path: '/session', label: 'Session', icon: <FaFileAlt /> },
     { path: '/subject', label: 'Subjects', icon: <FaFileAlt /> },
+        { path: '/register', label: 'Register/Deregister', icon: <FaCheckCircle /> },
     { path: '/upload', label: 'Result Upload', icon: <FaUpload /> },
     { path: '/publish', label: 'Publish Result', icon: <FaCheckCircle /> },
     // { path: '/promote-students', label: 'Promote Students', icon: <FaCheckCircle /> },

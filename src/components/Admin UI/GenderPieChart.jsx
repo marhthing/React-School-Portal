@@ -1,14 +1,21 @@
-// components/GenderPieChart.jsx
-import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from "recharts";
-
-const data = [
-  { name: "Boys", value: 300 },
-  { name: "Girls", value: 220 },
-];
+import PropTypes from "prop-types";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 const COLORS = ["#0088FE", "#FF69B4"];
 
-export default function GenderPieChart() {
+export default function GenderPieChart({ boys = 0, girls = 0 }) {
+  const data = [
+    { name: "Boys", value: boys },
+    { name: "Girls", value: girls },
+  ];
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-md shadow p-4">
       <h2 className="text-lg font-semibold mb-4">Boys vs Girls</h2>
@@ -34,3 +41,8 @@ export default function GenderPieChart() {
     </div>
   );
 }
+
+GenderPieChart.propTypes = {
+  boys: PropTypes.number,
+  girls: PropTypes.number,
+};

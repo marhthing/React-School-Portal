@@ -1,14 +1,13 @@
 import React, { useState } from "react";
 import StudentModal from "./StudentModal";
 
-const EditStudentButton = ({ student, onStudentUpdated }) => {
+const EditStudentButton = ({ student, onStudentUpdated, stateOptions, classOptions }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleOpen = () => setIsOpen(true);
   const handleClose = () => setIsOpen(false);
 
   const handleSubmit = (updatedStudentData) => {
-    // Here you can send updatedStudentData to your API/backend or update state
     if (onStudentUpdated) {
       onStudentUpdated(updatedStudentData);
     }
@@ -20,7 +19,7 @@ const EditStudentButton = ({ student, onStudentUpdated }) => {
       <button
         onClick={handleOpen}
         className="text-indigo-600 hover:text-indigo-900 px-2"
-        aria-label={`Edit student ${student.fullName}`}
+        aria-label={`Edit student ${student.regNumber}`}
       >
         Edit
       </button>
@@ -31,6 +30,8 @@ const EditStudentButton = ({ student, onStudentUpdated }) => {
           studentData={student}
           onSubmit={handleSubmit}
           onClose={handleClose}
+          stateOptions={stateOptions} 
+            classOptions={classOptions}
         />
       )}
     </>

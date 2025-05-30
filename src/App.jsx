@@ -15,6 +15,7 @@ import ReportPage from './pages/Admin pages/ReportPage'
 import UserManagementPage from './pages/Admin pages/UserManagementPage';
 import SettingsPage from './pages/Admin pages/SettingsPage';
 import PrintSlipPage from './pages/Admin pages/PrintSlipPage';
+import StudentRegisterPage from './pages/Admin pages/StudentRegisterPage';
 
 const App = () => {
   const userData = JSON.parse(localStorage.getItem('userData'));
@@ -152,6 +153,15 @@ const App = () => {
   element={
     <ProtectedRoute requiredRole="admin">
       <PrintSlipPage/>
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/register"
+  element={
+    <ProtectedRoute requiredRole="admin">
+      <StudentRegisterPage/>
     </ProtectedRoute>
   }
 />

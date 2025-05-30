@@ -9,6 +9,8 @@ export default function SubjectCategoryBadge({ category }) {
     bgColor = 'bg-orange-400 text-white';
   } else if (category === 'General') {
     bgColor = 'bg-gray-400 text-gray-900';
+  } else if (category === 'Junior') {
+    bgColor = 'bg-gray-400 text-gray-900';
   }
 
   return (

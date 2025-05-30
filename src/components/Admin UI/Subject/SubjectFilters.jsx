@@ -39,6 +39,7 @@ export default function SubjectFilters({
         <option value="General">General</option>
         <option value="Science">Science</option>
         <option value="Art">Art</option>
+        <option value="Junior">Junior</option>
       </select>
 
       {/* Class Dropdown */}

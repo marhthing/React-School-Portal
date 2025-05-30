@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Spinner from "../../Spinner";
 
 export default function AssignTeachersModal({
   subject,
@@ -7,6 +8,7 @@ export default function AssignTeachersModal({
   onSave,
 }) {
   const [selectedTeachers, setSelectedTeachers] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (subject) {
@@ -22,9 +24,15 @@ export default function AssignTeachersModal({
     );
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    onSave(subject.id, selectedTeachers);
+    setLoading(true);
+    try {
+      // Wait for onSave if it returns a Promise, so button stays loading during async ops
+      await onSave(subject.id, selectedTeachers);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -45,6 +53,7 @@ export default function AssignTeachersModal({
                   type="checkbox"
                   checked={selectedTeachers.includes(teacher.id)}
                   onChange={() => toggleTeacher(teacher.id)}
+                  disabled={loading}
                 />
                 <span>{teacher.name}</span>
               </label>
@@ -56,14 +65,17 @@ export default function AssignTeachersModal({
               type="button"
               onClick={onClose}
               className="px-4 py-2 rounded border border-gray-300 hover:bg-gray-100"
+              disabled={loading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700"
+              className="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700 flex items-center space-x-2"
+              disabled={loading}
             >
-              Save
+              {loading && <Spinner />}
+              <span>{loading ? 'Loading...' : 'Save'}</span>
             </button>
           </div>
         </form>

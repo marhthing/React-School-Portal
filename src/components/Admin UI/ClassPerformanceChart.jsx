@@ -1,16 +1,15 @@
-// components/ClassPerformanceChart.jsx
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import PropTypes from "prop-types";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
-const data = [
-  { class: "JS1", avgScore: 75 },
-  { class: "JS2", avgScore: 82 },
-  { class: "JS3", avgScore: 68 },
-  { class: "SS1", avgScore: 80 },
-  { class: "SS2", avgScore: 77 },
-  { class: "SS3", avgScore: 85 },
-];
-
-export default function ClassPerformanceChart() {
+export default function ClassPerformanceChart({ data }) {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-md shadow p-4">
       <h2 className="text-lg font-semibold mb-4">Class Performance</h2>
@@ -26,3 +25,12 @@ export default function ClassPerformanceChart() {
     </div>
   );
 }
+
+ClassPerformanceChart.propTypes = {
+  data: PropTypes.arrayOf(
+    PropTypes.shape({
+      class: PropTypes.string.isRequired,
+      avgScore: PropTypes.number.isRequired,
+    })
+  ).isRequired,
+};

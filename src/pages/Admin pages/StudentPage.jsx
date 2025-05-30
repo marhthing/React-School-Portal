@@ -25,25 +25,45 @@ const StudentPage = () => {
   const [classOptions, setClassOptions] = useState([]);
   const [loadingClasses, setLoadingClasses] = useState(true);
   const [loadingStudents, setLoadingStudents] = useState(true);
-
+const states = [
+  "Abia", "Adamawa", "Akwa Ibom", "Anambra", "Bauchi", "Bayelsa", "Benue",
+  "Borno", "Cross River", "Delta", "Ebonyi", "Edo", "Ekiti", "Enugu", "FCT",
+  "Gombe", "Imo", "Jigawa", "Kaduna", "Kano", "Katsina", "Kebbi", "Kogi",
+  "Kwara", "Lagos", "Nasarawa", "Niger", "Ogun", "Ondo", "Osun", "Oyo",
+  "Plateau", "Rivers", "Sokoto", "Taraba", "Yobe", "Zamfara"
+];
   // Fetch classes from API - get array of {id, name}
-  useEffect(() => {
-    async function fetchClasses() {
-      setLoadingClasses(true);
-      try {
-        const res = await fetch("http://localhost/sfgs_api/api/get_classes.php");
-        if (!res.ok) throw new Error("Failed to fetch classes");
-        const data = await res.json();
-        // Assuming API returns array directly or in data.classes
-        setClassOptions(data.classes || data || []);
-      } catch (error) {
-        console.error("Error fetching classes:", error);
-      } finally {
-        setLoadingClasses(false);
-      }
+const [classMap, setClassMap] = useState({}); // 💡 Add this
+
+useEffect(() => {
+  async function fetchClasses() {
+    setLoadingClasses(true);
+    try {
+      const res = await fetch("http://localhost/sfgs_api/api/get_classes.php");
+      if (!res.ok) throw new Error("Failed to fetch classes");
+
+      const data = await res.json();
+      const classes = data.classes || data || [];
+
+      setClassOptions(classes);
+
+      // ✅ Create map of classId -> className
+      const map = {};
+      classes.forEach(cls => {
+        map[cls.id] = cls.name;
+      });
+      setClassMap(map); // Save it for table use
+
+    } catch (error) {
+      console.error("Error fetching classes:", error);
+    } finally {
+      setLoadingClasses(false);
     }
-    fetchClasses();
-  }, []);
+  }
+
+  fetchClasses();
+}, []);
+
 
   // Fetch students from API
   useEffect(() => {
@@ -133,63 +153,84 @@ const StudentPage = () => {
     setEditingStudent(null);
   };
 
-  // Add or Edit student submit handler
-  const handleAddOrEditSubmit = async (formData) => {
+const handleAddOrEditSubmit = async (formData) => {
+  try {
+    let url = "http://localhost/sfgs_api/api/students.php";
+    let options = {
+      headers: { "Content-Type": "application/json" },
+    };
+
+    // Remove regNumber before sending on create, since backend generates it
     if (modalMode === "create") {
-      try {
-        const res = await fetch("http://localhost/sfgs_api/api/students.php", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
-        });
-        const data = await res.json();
-        if (data.success) {
-          const newStudent = { ...formData, regNumber: data.regNumber || formData.regNumber };
-          setStudents((prev) => [...prev, newStudent]);
-        } else {
-          alert("Error adding student: " + (data.error || "Unknown error"));
-        }
-      } catch (error) {
-        console.error(error);
-        alert("Error adding student");
-      }
+      options.method = "POST";
+      const { regNumber, ...dataWithoutRegNumber } = formData;
+      options.body = JSON.stringify(dataWithoutRegNumber);
+
+      console.log("Form data submitted (create):", dataWithoutRegNumber);
     } else if (modalMode === "edit") {
-      try {
-        const res = await fetch(
-          `http://localhost/sfgs_api/api/students.php?id=${formData.regNumber}`,
-          {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(formData),
-          }
-        );
-        const data = await res.json();
-        if (data.success) {
-          setStudents((prev) =>
-            prev.map((stu) => (stu.regNumber === formData.regNumber ? formData : stu))
-          );
-        } else {
-          alert("Error updating student: " + (data.error || "Unknown error"));
-        }
-      } catch (error) {
-        console.error(error);
-        alert("Error updating student");
-      }
+      options.method = "PUT";
+url += `?regNumber=${formData.regNumber}`;
+
+      options.body = JSON.stringify(formData);
+
+      console.log("Form data submitted (edit):", formData);
     }
-    closeModal();
-  };
+
+    const res = await fetch(url, options);
+
+    // Debug: log raw text response before parsing
+    const rawText = await res.text();
+    console.log("Raw backend response:", rawText);
+
+    // Parse JSON safely
+    let data;
+    try {
+      data = JSON.parse(rawText);
+    } catch (parseError) {
+      console.error("Failed to parse JSON response:", parseError);
+      alert("Server returned invalid JSON response.");
+      return;
+    }
+
+    console.log("Backend response (parsed):", data);
+
+    if (data.success) {
+      if (modalMode === "create") {
+        const newStudent = { ...formData, regNumber: data.regNumber };
+        setStudents((prev) => [...prev, newStudent]);
+      } else {
+        setStudents((prev) =>
+          prev.map((stu) =>
+            stu.regNumber === formData.regNumber ? formData : stu
+          )
+        );
+      }
+      closeModal();
+    } else {
+      alert(
+        `${modalMode === "create" ? "Adding" : "Updating"} student failed: ${
+          data.error || "Unknown error"
+        }`
+      );
+    }
+  } catch (error) {
+    console.error("Network or other error:", error);
+    alert(`Error ${modalMode === "create" ? "adding" : "updating"} student`);
+  }
+};
+
 
   // Delete student handler
   const handleDelete = async (regNumber) => {
-    if (!window.confirm("Are you sure you want to delete this student?")) return;
 
     try {
       const res = await fetch(
-        `http://localhost/sfgs_api/api/students.php?id=${regNumber}`,
-        {
-          method: "DELETE",
-        }
-      );
+  `http://localhost/sfgs_api/api/students.php?regNumber=${regNumber}`,
+  {
+    method: "DELETE",
+  }
+);
+
       const data = await res.json();
       if (data.success) {
         setStudents((prevStudents) =>
@@ -245,11 +286,15 @@ const handleSearchChange = (newQuery) => {
         </div>
 
         <div className="w-full overflow-x-auto rounded-lg shadow-sm">
-          <StudentTable
-            students={currentStudents}
-            onEditStudent={openEditModal}
-            onDelete={handleDelete}
-          />
+<StudentTable
+  students={currentStudents}
+  onEditStudent={openEditModal}
+  onDelete={handleDelete}
+  classMap={classMap} // 💡 pass it
+  stateOptions={states}
+              classOptions={classOptions}
+/>
+
         </div>
 
         <Pagination
@@ -265,6 +310,7 @@ const handleSearchChange = (newQuery) => {
             onSubmit={handleAddOrEditSubmit}
             onClose={closeModal}
             classOptions={classOptions}
+            stateOptions={states}
           />
         )}
       </div>
