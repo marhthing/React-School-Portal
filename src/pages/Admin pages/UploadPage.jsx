@@ -113,38 +113,33 @@ const fetchSubjects = async () => {
   setLoading(true);
   setErrorMsg("");
   setSuccessMsg("");
-  try {
-    const classId = selectedClass; // from classesList id
-    const sessionId = selectedSession; // from sessionsList id
-    const subjectId = selectedSubject; // from subjectsList id
 
+  try {
     const url = new URL("http://localhost/sfgs_api/api/scores.php");
-    url.searchParams.append("classId", classId);
-    url.searchParams.append("subjectId", subjectId);
+    url.searchParams.append("classId", selectedClass);
+    url.searchParams.append("subjectId", selectedSubject);
     url.searchParams.append("term", selectedTerm);
-    url.searchParams.append("sessionId", sessionId);
+    url.searchParams.append("sessionId", selectedSession);
 
     const res = await fetch(url.toString());
     if (!res.ok) throw new Error("Failed to fetch scores");
 
     const data = await res.json();
-
-    // data is an object with 'scores' array inside
     const scoresArray = Array.isArray(data.scores) ? data.scores : [];
 
-    const scoresData = scoresArray.map((item) => ({
-      // Adjust field names based on your API response:
-      id: item.id || item.student_regNumber || "", // score ID or student reg number
-      name: item.student_name || "",               // You may want to fetch student name separately if missing
-      regNo: item.student_regNumber || "",
+    const mappedScores = scoresArray.map((item, index) => ({
+      id: index + 1, // Or use item.student_id if available
+      name: item.student_name,
+      regNo: item.student_reg_number,  // ✅ Correct field from API
+      subject_id: item.subject_id || selectedSubject,
       ca1: item.ca1 ?? "",
       ca2: item.ca2 ?? "",
       exam: item.exam ?? "",
-      total: ((item.ca1 ?? 0) + (item.ca2 ?? 0) + (item.exam ?? 0)),
+      total: (Number(item.ca1 ?? 0) + Number(item.ca2 ?? 0) + Number(item.exam ?? 0)),
       errors: {},
     }));
 
-    setStudentsScores(scoresData);
+    setStudentsScores(mappedScores);
     setIsEditMode(true);
   } catch (error) {
     setErrorMsg("Failed to fetch students or scores.");
@@ -155,6 +150,7 @@ const fetchSubjects = async () => {
     setLoading(false);
   }
 };
+
 
 
   const handleScoreChange = (studentId, field, value) => {
@@ -232,18 +228,20 @@ const fetchSubjects = async () => {
     try {
       // Prepare payload - adjust to your API needs
       const payload = {
-        classId: selectedClass,
-        subjectId: selectedSubject,
-        term: selectedTerm,
-        sessionId: selectedSession,
-        scores: studentsScores.map(({ id, ca1, ca2, exam }) => ({
-          studentId: id,
-          ca1,
-          ca2,
-          exam,
-        })),
-      };
+  teacher_id: null, // or valid teacher ID
+  term_id: selectedTerm,
+  session_id: selectedSession,
+  scores: studentsScores.map(({ regNo, ca1, ca2, exam, subject_id }) => ({
+    student_regNumber: regNo,  // ✅ must match backend field
+    subject_id,
+    ca1,
+    ca2,
+    exam,
+  })),
+};
 
+
+console.log("Payload being sent:", payload);
       const res = await fetch("http://localhost/sfgs_api/api/scores.php", {
         method: isEditMode ? "PUT" : "POST",
         headers: {
@@ -296,22 +294,24 @@ subjectsByClass={subjectsByClass}
         {!loading && studentsScores.length > 0 && (
           <>
             {isMobile ? (
-              <ScoreInputCardList
-                students={studentsScores}
-                onScoreChange={handleScoreChange}
-              />
-            ) : (
-              <ScoreInputTable
-                students={studentsScores}
-                onScoreChange={handleScoreChange}
-              />
-            )}
+  <ScoreInputCardList
+    studentsScores={studentsScores}  // <--- fix here
+    onScoreChange={handleScoreChange}
+  />
+) : (
+  <ScoreInputTable
+     studentsScores={studentsScores}   // check if this prop name is correct for ScoreInputTable
+    onScoreChange={handleScoreChange}
+  />
+)}
+
 
             <SubmitScoresButton
-              onSave={handleSave}
-              saving={saving}
-              disabled={saving}
-            />
+  onClick={handleSave}  // ✅ correctly triggers the function
+  isLoading={saving}    // ✅ shows spinner when saving
+  disabled={saving}
+/>
+
           </>
         )}
 
