@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import AdminLayout from '../../components/AdminLayout';
+import AdminLayout from '../../components/ui/AdminLayout';
 
 import ClassReport from '../../components/Admin UI/Report/ClassReport';
 import SubjectReport from '../../components/Admin UI/Report/SubjectReport';

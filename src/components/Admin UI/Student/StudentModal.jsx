@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Spinner from "../../Spinner";
+import Spinner from "../../ui/Spinner";
 import { toast } from "react-hot-toast"; // if you're using toast
 
 const initialFormState = {

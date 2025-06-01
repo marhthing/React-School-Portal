@@ -1,6 +1,6 @@
 // src/pages/TeacherDashboard.jsx
-import Sidebar from '../components/Sidebar';
-import Navbar from '../components/Navbar';
+import Sidebar from '../components/ui/Sidebar';
+import Navbar from '../components/ui/Navbar';
 
 const TeacherDashboard = () => {
   return (

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Spinner from '../../Spinner'
+import Spinner from "../../ui/Spinner";
 
 export default function SubjectModal({
   student,
@@ -58,7 +58,9 @@ export default function SubjectModal({
         </h2>
 
         {loading && (
-          <p className="text-gray-600 dark:text-gray-400"><Spinner /></p>
+          <p className="text-gray-600 dark:text-gray-400">
+            <Spinner />
+          </p>
         )}
 
         {error && (
@@ -95,7 +97,9 @@ export default function SubjectModal({
                           <input
                             type="checkbox"
                             checked={subject.registered}
-                            onChange={() => handleCheckboxChange(subject.subject_id)}
+                            onChange={() =>
+                              handleCheckboxChange(subject.subject_id)
+                            }
                             disabled={actionLoading}
                             className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-400"
                           />

@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import AdminLayout from "../../components/AdminLayout";
+import AdminLayout from '../../components/ui/AdminLayout';
 import StudentSlipDetails from "../../components/Admin UI/Slip/StudentSlipDetails";
 import PrintButton from "../../components/Admin UI/Slip/PrintButton";
 

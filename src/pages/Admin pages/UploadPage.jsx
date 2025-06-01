@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import AdminLayout from "../../components/AdminLayout";
+import AdminLayout from '../../components/ui/AdminLayout';
 
 import ResultFormFilter from "../../components/Admin UI/Upload/ResultFormFilter";
 import ScoreInputTable from "../../components/Admin UI/Upload/ScoreInputTable";
 import ScoreInputCardList from "../../components/Admin UI/Upload/ScoreInputCardList";
 import SubmitScoresButton from "../../components/Admin UI/Upload/SubmitScoresButton";
 import ResultToast from "../../components/Admin UI/Upload/ResultToast";
-import Spinner from "../../components/Spinner";
+import Spinner from "../../components/ui/Spinner";
 
 const MAX_TOTAL_SCORE = 100;
 
@@ -230,6 +230,7 @@ const fetchSubjects = async () => {
       const payload = {
   teacher_id: null, // or valid teacher ID
   term_id: selectedTerm,
+  class_id: selectedClass,
   session_id: selectedSession,
   scores: studentsScores.map(({ regNo, ca1, ca2, exam, subject_id }) => ({
     student_regNumber: regNo,  // ✅ must match backend field

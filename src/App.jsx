@@ -1,12 +1,12 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import Login from './pages/Login';
+import { useUser } from './Service/UserContext'; // Adjust path if needed
+import Login from './Service/Login';
 import AdminDashboard from './pages/AdminDashboard';
 import StudentDashboard from './pages/StudentDashboard';
 import TeacherDashboard from './pages/TeacherDashboard';
-import StudentPage  from './pages/Admin pages/StudentPage';
-import TeacherPage  from './pages/Admin pages/TeacherPage';
-
-import ProtectedRoute from './components/ProtectedRoute';
+import StudentPage from './pages/Admin pages/StudentPage';
+import TeacherPage from './pages/Admin pages/TeacherPage';
+import ProtectedRoute from './Service/ProtectedRoute';
 import SessionPage from './pages/Admin pages/SessionPage';
 import SubjectPage from './pages/Admin pages/SubjecttPage';
 import UploadPage from './pages/Admin pages/UploadPage';
@@ -16,38 +16,54 @@ import UserManagementPage from './pages/Admin pages/UserManagementPage';
 import SettingsPage from './pages/Admin pages/SettingsPage';
 import PrintSlipPage from './pages/Admin pages/PrintSlipPage';
 import StudentRegisterPage from './pages/Admin pages/StudentRegisterPage';
+import { getDashboardRoute } from './Service/roleUtils'; // Import centralized utility
 
 const App = () => {
-  const userData = JSON.parse(localStorage.getItem('userData'));
-  const role = userData?.role;
+  const { user, loading } = useUser();
+  const role = user?.role;
+
+  // Show loading while checking authentication
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-gray-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Routes>
-      {/* Login route: only accessible if not logged in */}
+      {/* Login route: redirect to dashboard if already logged in */}
       <Route
         path="/login"
-        element={role ? <Navigate to={`/${role}Dashboard`} replace /> : <Login />}
+        element={role ? <Navigate to={getDashboardRoute(role)} replace /> : <Login />}
       />
-
-      {/* Root route: redirect to dashboard or login */}
+      
+      {/* Root route: redirect to appropriate dashboard or login */}
       <Route
         path="/"
         element={
-          role ? <Navigate to={`/${role}Dashboard`} replace /> : <Navigate to="/login" replace />
+          role ? (
+            <Navigate to={getDashboardRoute(role)} replace />
+          ) : (
+            <Navigate to="/login" replace />
+          )
         }
       />
 
-      {/* Admin dashboard route */}
+      {/* Dashboard routes */}
       <Route
         path="/adminDashboard"
         element={
-          <ProtectedRoute requiredRole="admin">
+          <ProtectedRoute requiredRole={['admin', 'superadmin']}>
             <AdminDashboard />
           </ProtectedRoute>
         }
       />
-
-      {/* Student dashboard route */}
+      
       <Route
         path="/studentDashboard"
         element={
@@ -56,116 +72,105 @@ const App = () => {
           </ProtectedRoute>
         }
       />
-
-      {/* Teacher dashboard route */}
+      
       <Route
         path="/teacherDashboard"
         element={
-          <ProtectedRoute requiredRole="teacher">
+          <ProtectedRoute requiredRole={['teacher', 'classteacher']}>
             <TeacherDashboard />
           </ProtectedRoute>
         }
       />
 
-<Route
-  path="/student"
-  element={
-    <ProtectedRoute requiredRole="admin">
-      <StudentPage />
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/teacher"
-  element={
-    <ProtectedRoute requiredRole="admin">
-      <TeacherPage />
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/session"
-  element={
-    <ProtectedRoute requiredRole="admin">
-      <SessionPage />
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/subject"
-  element={
-    <ProtectedRoute requiredRole="admin">
-      <SubjectPage />
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/upload"
-  element={
-    <ProtectedRoute requiredRole="admin">
-      <UploadPage />
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/publish"
-  element={
-    <ProtectedRoute requiredRole="admin">
-      <PublishPage />
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/report"
-  element={
-    <ProtectedRoute requiredRole="admin">
-      <ReportPage/>
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/user-manage"
-  element={
-    <ProtectedRoute requiredRole="admin">
-      <UserManagementPage/>
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/setting"
-  element={
-    <ProtectedRoute requiredRole="admin">
-      <SettingsPage/>
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/slip"
-  element={
-    <ProtectedRoute requiredRole="admin">
-      <PrintSlipPage/>
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/register"
-  element={
-    <ProtectedRoute requiredRole="admin">
-      <StudentRegisterPage/>
-    </ProtectedRoute>
-  }
-/>
-
+      {/* Admin-only routes */}
+      <Route
+        path="/student"
+        element={
+          <ProtectedRoute requiredRole={['admin', 'superadmin']}>
+            <StudentPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/teacher"
+        element={
+          <ProtectedRoute requiredRole={['admin', 'superadmin']}>
+            <TeacherPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/session"
+        element={
+          <ProtectedRoute requiredRole={['admin', 'superadmin']}>
+            <SessionPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/subject"
+        element={
+          <ProtectedRoute requiredRole={['admin', 'superadmin']}>
+            <SubjectPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/upload"
+        element={
+          <ProtectedRoute requiredRole={['admin', 'superadmin']}>
+            <UploadPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/publish"
+        element={
+          <ProtectedRoute requiredRole={['admin', 'superadmin']}>
+            <PublishPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/report"
+        element={
+          <ProtectedRoute requiredRole={['admin', 'superadmin']}>
+            <ReportPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/user-manage"
+        element={
+          <ProtectedRoute requiredRole={['admin', 'superadmin']}>
+            <UserManagementPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/setting"
+        element={
+          <ProtectedRoute requiredRole={['admin', 'superadmin']}>
+            <SettingsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/slip"
+        element={
+          <ProtectedRoute requiredRole={['admin', 'superadmin']}>
+            <PrintSlipPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/register"
+        element={
+          <ProtectedRoute requiredRole={['admin', 'superadmin']}>
+            <StudentRegisterPage />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 };

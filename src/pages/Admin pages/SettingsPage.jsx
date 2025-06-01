@@ -4,7 +4,7 @@ import AcademicInfoTable from "../../components/Admin UI/Settings/AcademicInfoTa
 import PlatformToggles from "../../components/Admin UI/Settings/PlatformToggles";
 import SettingsModal from "../../components/Admin UI/Settings/SettingsModal";
 import ConfirmDeleteModal from "../../components/Admin UI/Settings/ConfirmDeleteModal";
-import AdminLayout from "../../components/AdminLayout";
+import AdminLayout from '../../components/ui/AdminLayout';
 
 const SettingsPage = () => {
   const [schoolInfo, setSchoolInfo] = useState(null);

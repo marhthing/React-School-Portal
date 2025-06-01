@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
-import AdminLayout from "../../components/AdminLayout";
+import AdminLayout from '../../components/ui/AdminLayout';
 import TeacherSummary from "../../components/Admin UI/Teacher/TeacherSummary";
 import TeacherSearchFilter from "../../components/Admin UI/Teacher/TeacherSearchFilter";
 import TeacherTable from "../../components/Admin UI/Teacher/TeachersTable";
 import TeacherModal from "../../components/Admin UI/Teacher/TeacherModal";
 import AddTeacherButton from "../../components/Admin UI/Teacher/AddTeacherButton";
 import TeacherExportButtons from "../../components/Admin UI/Teacher/TeacherExportButtons";
-import Pagination from "../../components/Admin UI/Pagination";
+import Pagination from "../../components/Admin UI/Dashboard/Pagination";
 import ConfirmDeleteModal from "../../components/Admin UI/Teacher/ConfirmDeleteModal";
-import Spinner from "../../components/Spinner";  // <-- import Spinner
+import Spinner from "../../components/ui/Spinner";
 
 const API_URL = "http://localhost/sfgs_api/api/teachers.php";
 

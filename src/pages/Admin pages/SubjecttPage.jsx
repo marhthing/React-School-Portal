@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import AdminLayout from '../../components/AdminLayout';
+import AdminLayout from '../../components/ui/AdminLayout';
 import SubjectFilters from '../../components/Admin UI/Subject/SubjectFilters';
 import SubjectsTable from '../../components/Admin UI/Subject/SubjectsTable';
 import AddEditSubjectModal from '../../components/Admin UI/Subject/AddEditSubjectModal';
 import AssignTeachersModal from '../../components/Admin UI/Subject/AssignTeachersModal';
 import ConfirmDeleteModal from '../../components/Admin UI/Subject/ConfirmDeleteModal';
-import Spinner from '../../components/Spinner';
+import Spinner from "../../components/ui/Spinner";
 
 
 const API_SUBJECTS = "http://localhost/sfgs_api/api/subjects.php";

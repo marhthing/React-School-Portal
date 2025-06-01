@@ -1,5 +1,6 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
+import { getDashboardRoute, hasRequiredRole } from './roleUtils'; // Import centralized utilities
 
 const ProtectedRoute = ({ children, requiredRole }) => {
   const userData = JSON.parse(localStorage.getItem('userData'));
@@ -10,9 +11,9 @@ const ProtectedRoute = ({ children, requiredRole }) => {
     return <Navigate to="/login" replace />;
   }
 
-  if (requiredRole && role !== requiredRole) {
+  if (requiredRole && !hasRequiredRole(role, requiredRole)) {
     // Logged in but wrong role, redirect to their correct dashboard
-    return <Navigate to={`/${role}Dashboard`} replace />;
+    return <Navigate to={getDashboardRoute(role)} replace />;
   }
 
   // Authorized, render the protected component

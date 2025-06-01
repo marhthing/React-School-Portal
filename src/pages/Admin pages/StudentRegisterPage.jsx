@@ -3,7 +3,7 @@ import RegisterControls from "../../components/Admin UI/Register/RegisterControl
 import StudentList from "../../components/Admin UI/Register/StudentList";
 import Notification from "../../components/Admin UI/Register/Notification";
 import SubjectModal from "../../components/Admin UI/Register/SubjectModal";
-import AdminLayout from '../../components/AdminLayout';
+import AdminLayout from '../../components/ui/AdminLayout';
 
 export default function StudentRegisterPage() {
   // State

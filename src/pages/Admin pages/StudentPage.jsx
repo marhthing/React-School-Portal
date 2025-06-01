@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
-import AdminLayout from "../../components/AdminLayout";
+import AdminLayout from '../../components/ui/AdminLayout';
 import StudentSummary from "../../components/Admin UI/Student/StudentSummary";
 import StudentSearchFilter from "../../components/Admin UI/Student/StudentSearchFilter";
 import StudentTable from "../../components/Admin UI/Student/StudentTable";
 import StudentModal from "../../components/Admin UI/Student/StudentModal";
 import AddStudentButton from "../../components/Admin UI/Student/AddStudentButton";
 import StudentExportButtons from "../../components/Admin UI/Student/StudentExportButtons";
-import Pagination from "../../components/Admin UI/Pagination";
-import Spinner from "../../components/Spinner";
+import Pagination from "../../components/Admin UI/Dashboard/Pagination";
+import Spinner from "../../components/ui/Spinner";
 
 const StudentPage = () => {
   const [students, setStudents] = useState([]);

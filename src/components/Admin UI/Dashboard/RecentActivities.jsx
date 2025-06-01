@@ -1,6 +1,12 @@
 import PropTypes from "prop-types";
-import { Card, CardContent } from "../ui/card";
-import { FaUser, FaUpload, FaSignInAlt, FaEdit, FaInfoCircle } from "react-icons/fa";
+import { Card, CardContent } from "../../ui/card";
+import {
+  FaUser,
+  FaUpload,
+  FaSignInAlt,
+  FaEdit,
+  FaInfoCircle,
+} from "react-icons/fa";
 
 const iconMap = {
   login: <FaSignInAlt />,

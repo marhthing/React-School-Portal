@@ -1,5 +1,5 @@
 import React from "react";
-import Spinner from '../../Spinner'
+import Spinner from '../../ui/Spinner'
 
 export default function RegisterControls({
   term,

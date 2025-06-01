@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import AdminLayout from "../../components/AdminLayout";
+import AdminLayout from '../../components/ui/AdminLayout';
 import SessionsTable from "../../components/Admin UI/Session/SessionsTable";
 import ClassesTable from "../../components/Admin UI/Session/ClassesTable";
 import AddEditSessionModal from "../../components/Admin UI/Session/AddEditSessionModal";
 import AddEditClassModal from "../../components/Admin UI/Session/AddEditClassModal";
 import ConfirmDeleteModal from "../../components/Admin UI/Session/ConfirmDeleteModal";
-import Spinner from "../../components/Spinner"; // adjust the import path if needed
+import Spinner from "../../components/ui/Spinner";
 
 export default function SessionPage() {
   const [sessions, setSessions] = useState([]);
