@@ -16,6 +16,8 @@ const ResultPublishPage = () => {
   const [selectedSession, setSelectedSession] = useState("");
   const [calcLoading, setCalcLoading] = useState(false);
   const [calcMessage, setCalcMessage] = useState(null);
+const [termDatesSelectedTerm, setTermDatesSelectedTerm] = useState("");
+const [termDatesSelectedSession, setTermDatesSelectedSession] = useState("");
 
   // Result Visibility States
   const [visibilitySettings, setVisibilitySettings] = useState({
@@ -129,27 +131,33 @@ const ResultPublishPage = () => {
       }
     };
 
-    const fetchTermDates = async () => {
-      setTermDatesLoading(true);
-      try {
-        const res = await axios.get(
-          "http://localhost/sfgs_api/api/term_dates.php"
-        );
-        setTermDates({
-          endOfTerm: res.data?.endOfTerm || "",
-          nextTermStart: res.data?.nextTermStart || "",
-        });
-      } catch (error) {
-        console.error("Term dates fetch failed:", error);
-      } finally {
-        setTermDatesLoading(false);
-      }
-    };
+   const fetchTermDates = async () => {
+  setTermDatesLoading(true);
+  try {
+    const res = await axios.get("http://localhost/sfgs_api/api/term_dates.php");
+    setTermDates({
+      endOfTerm: res.data?.endOfTerm || "",
+      nextTermStart: res.data?.nextTermStart || "",
+    });
+    setCurrentTermSession({
+      currentTerm: res.data?.currentTerm || '',
+      currentSession: res.data?.currentSession || ''
+    });
+  } catch (error) {
+    console.error("Term dates fetch failed:", error);
+  } finally {
+    setTermDatesLoading(false);
+  }
+};
 
     fetchDropdownData();
     fetchTermDates();
   }, []);
-
+useEffect(() => {
+  if (termDatesSelectedTerm && termDatesSelectedSession) {
+    fetchTermDates();
+  }
+}, [termDatesSelectedTerm, termDatesSelectedSession]);
   // Fetch students and visibility when term or session changes
   useEffect(() => {
     if (selectedTerm && selectedSession) {
@@ -157,6 +165,10 @@ const ResultPublishPage = () => {
       fetchVisibilityForTermSession(selectedTerm, selectedSession);
     }
   }, [selectedTerm, selectedSession]);
+const [currentTermSession, setCurrentTermSession] = useState({
+  currentTerm: '',
+  currentSession: ''
+});
 
   const handleCalculateResults = async () => {
     setCalcLoading(true);
@@ -314,27 +326,27 @@ const ResultPublishPage = () => {
   };
 
   const onSaveTermDates = async () => {
-    setTermDatesLoading(true);
-    setTermDatesMessage(null);
-    try {
-      const res = await axios.post(
-        "http://localhost/sfgs_api/api/term_dates.php",
-        termDates
-      );
-      setTermDates({
-        endOfTerm: res.data?.endOfTerm || "",
-        nextTermStart: res.data?.nextTermStart || "",
-      });
-      setTermDatesMessage({ type: "success", text: "Term dates saved." });
-    } catch (error) {
-      setTermDatesMessage({
-        type: "error",
-        text: error.response?.data?.message || "Failed to save term dates.",
-      });
-    } finally {
-      setTermDatesLoading(false);
-    }
-  };
+  setTermDatesLoading(true);
+  setTermDatesMessage(null);
+  try {
+    const res = await axios.post(
+      "http://localhost/sfgs_api/api/term_dates.php",
+      termDates
+    );
+    setTermDates({
+      endOfTerm: res.data?.endOfTerm || "",
+      nextTermStart: res.data?.nextTermStart || "",
+    });
+    setTermDatesMessage({ type: "success", text: res.data?.message || "Term dates saved." });
+  } catch (error) {
+    setTermDatesMessage({
+      type: "error",
+      text: error.response?.data?.message || "Failed to save term dates.",
+    });
+  } finally {
+    setTermDatesLoading(false);
+  }
+};
 
   const handleTermSessionChange = ({ termName, sessionId }) => {
     setSelectedTerm(termName);
@@ -386,14 +398,16 @@ const ResultPublishPage = () => {
           />
 
           <TermDateSetter
-            endOfTerm={termDates.endOfTerm}
-            nextTermStart={termDates.nextTermStart}
-            onEndOfTermChange={onEndOfTermChange}
-            onNextTermStartChange={onNextTermStartChange}
-            onSaveDates={onSaveTermDates}
-            saving={termDatesLoading}
-            message={termDatesMessage}
-          />
+  endOfTerm={termDates.endOfTerm}
+  nextTermStart={termDates.nextTermStart}
+  onEndOfTermChange={onEndOfTermChange}
+  onNextTermStartChange={onNextTermStartChange}
+  onSaveDates={onSaveTermDates}
+  saving={termDatesLoading}
+  message={termDatesMessage}
+  currentTerm={currentTermSession.currentTerm}
+  currentSession={currentTermSession.currentSession}
+/>
         </div>
       </div>
     </AdminLayout>

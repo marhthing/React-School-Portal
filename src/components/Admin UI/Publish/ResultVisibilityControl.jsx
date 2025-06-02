@@ -162,19 +162,28 @@ const ResultVisibilityControl = ({
     onToggleStudentVisibility(regNumber);
   };
 
-  // Handle class visibility toggle
+  // Handle class visibility toggle - FIXED: Ensure consistent type handling
   const handleClassVisibilityToggle = (classId) => {
+    // Convert to string for consistency
+    const classIdStr = String(classId);
+    
     // Update local state immediately
     setLocalVisibilityState(prev => {
-      const classes = prev.classes || [];
-      const newClasses = classes.includes(classId)
-        ? classes.filter(id => id !== classId)
-        : [...classes, classId];
+      const classes = (prev.classes || []).map(id => String(id)); // Normalize to strings
+      const newClasses = classes.includes(classIdStr)
+        ? classes.filter(id => id !== classIdStr)
+        : [...classes, classIdStr];
       return { ...prev, classes: newClasses };
     });
 
-    // Call parent toggle function
+    // Call parent toggle function with original format
     onToggleClassVisibility(classId);
+  };
+
+  // Helper function to check if class is visible - FIXED: Handle type consistency
+  const isClassVisible = (classId) => {
+    const visibleClasses = (localVisibilityState.classes || []).map(id => String(id));
+    return visibleClasses.includes(String(classId));
   };
 
   // Count visible students in current filter
@@ -237,21 +246,20 @@ const ResultVisibilityControl = ({
         </div>
       </div>
 
-      {/* Class Visibility Toggles */}
+      {/* Class Visibility Toggles - FIXED: Use helper function for consistent checking */}
       <div className="mb-6">
         <h3 className="font-semibold mb-2 text-gray-800 dark:text-white">
           Classes ({(localVisibilityState.classes || []).length} visible)
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {classes.map((cls) => {
-            const classId = String(cls.id);
-            const enabled = (localVisibilityState.classes || []).includes(classId);
+            const enabled = isClassVisible(cls.id); // Use helper function
             return (
-              <label key={classId} className="inline-flex items-center cursor-pointer p-2 rounded hover:bg-gray-50 dark:hover:bg-gray-700">
+              <label key={cls.id} className="inline-flex items-center cursor-pointer p-2 rounded hover:bg-gray-50 dark:hover:bg-gray-700">
                 <input
                   type="checkbox"
                   checked={enabled}
-                  onChange={() => handleClassVisibilityToggle(classId)}
+                  onChange={() => handleClassVisibilityToggle(cls.id)}
                   className="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500 dark:focus:ring-blue-600"
                 />
                 <span className="ml-3 text-gray-700 dark:text-gray-200 font-medium">
@@ -372,7 +380,7 @@ const ResultVisibilityControl = ({
         <p className="mt-2 text-sm text-amber-600 dark:text-amber-400">
           Please select both term and session before saving.
         </p>
-      )}
+        )}
 
       {/* Feedback Message */}
       {message && (
